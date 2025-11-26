@@ -1,0 +1,79 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+.nyc_output
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Production builds
+dist/
+build/
+.next/
+out/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Cache
+.eslintcache
+.cache/
+.parcel-cache/
+
+# Temporary files
+*.tmp
+*.temp
+.temp/
+
+# Database
+*.sqlite
+*.db
+
+# Secrets
+*.pem
+*.key
+secrets/
+.secrets/
+
+# Docker
+.docker/
+
+# Monorepo
+.turbo/
+.nx/
+
+# Misc
+.vercel
+.netlify
+.firebase/
