@@ -1,0 +1,211 @@
+# Tasks: Accessibility & Inclusive Design (PRD 0018)
+
+## Relevant Files
+
+### Frontend
+- `apps/web/lib/a11y/focus-management.ts` - Focus trap utilities
+- `apps/web/lib/a11y/aria.ts` - ARIA helpers
+- `apps/web/components/a11y/SkipLink.tsx` - Skip navigation
+- `apps/web/components/a11y/ScreenReaderOnly.tsx` - SR-only text
+- `apps/web/styles/focus.css` - Focus indicator styles
+
+### Testing
+- `e2e/accessibility.spec.ts` - Accessibility E2E tests
+- `apps/web/__tests__/a11y/` - Component accessibility tests
+- `.lighthouserc.js` - Lighthouse CI config
+- `axe.config.js` - Axe-core configuration
+
+### Configuration
+- `next.config.js` - Add accessibility plugins
+- `tailwind.config.js` - Accessible color contrast
+
+## Notes
+
+```bash
+# A11y Testing
+yarn nx test web --testPathPattern=a11y
+npx pa11y http://localhost:3000
+yarn lighthouse:ci
+
+# Manual Testing
+# - NVDA (Windows): Free screen reader
+# - VoiceOver (Mac): Built-in screen reader
+# - JAWS (Windows): Commercial screen reader
+```
+
+## Tasks
+
+### 1.0 Audit current accessibility issues and set up tooling
+#### 1.1 Run axe DevTools on all pages
+#### 1.2 Perform Lighthouse accessibility audit
+#### 1.3 Test with NVDA screen reader
+#### 1.4 Test with VoiceOver screen reader
+#### 1.5 Install jest-axe for automated testing
+#### 1.6 Configure Lighthouse CI in GitHub Actions
+#### 1.7 Set up axe-core in E2E tests
+#### 1.8 Create accessibility testing checklist
+#### 1.9 Document critical violations found
+#### 1.10 Prioritize fixes (critical → high → medium)
+#### 1.11 Run linter and verify zero warnings
+#### 1.12 Run full test suite and verify all tests pass
+#### 1.13 Build project and verify successful compilation
+#### 1.14 Verify system functionality end-to-end
+#### 1.15 Update Docker configurations if deployment changes needed
+#### 1.16 Update Helm chart if deployment changes needed
+
+### 2.0 Fix critical WCAG violations (color contrast, alt text)
+#### 2.1 Audit all color combinations for contrast ratios
+#### 2.2 Update colors to meet 4.5:1 ratio (normal text)
+#### 2.3 Ensure 3:1 ratio for large text (18pt+)
+#### 2.4 Add alt text to all images
+#### 2.5 Use empty alt for decorative images
+#### 2.6 Add aria-label for icon buttons
+#### 2.7 Ensure form labels are associated with inputs
+#### 2.8 Fix missing page titles
+#### 2.9 Add language attribute to HTML tag
+#### 2.10 Test fixes with axe DevTools
+#### 2.11 Run linter and verify zero warnings
+#### 2.12 Run full test suite and verify all tests pass
+#### 2.13 Build project and verify successful compilation
+#### 2.14 Verify system functionality end-to-end
+#### 2.15 Update Docker configurations if deployment changes needed
+#### 2.16 Update Helm chart if deployment changes needed
+
+### 3.0 Implement ARIA landmarks and semantic HTML
+#### 3.1 Add role="banner" to header
+#### 3.2 Add role="navigation" to nav elements
+#### 3.3 Add role="main" to main content area
+#### 3.4 Add role="complementary" to aside elements
+#### 3.5 Add role="contentinfo" to footer
+#### 3.6 Use semantic HTML5 elements (header, nav, main, footer)
+#### 3.7 Create proper heading hierarchy (h1 → h2 → h3)
+#### 3.8 Add aria-label to navigation regions
+#### 3.9 Test landmark navigation with screen reader
+#### 3.10 Run linter and verify zero warnings
+#### 3.11 Run full test suite and verify all tests pass
+#### 3.12 Build project and verify successful compilation
+#### 3.13 Verify system functionality end-to-end
+#### 3.14 Update Docker configurations if deployment changes needed
+#### 3.15 Update Helm chart if deployment changes needed
+
+### 4.0 Implement skip links and keyboard navigation
+#### 4.1 Create "Skip to main content" link
+#### 4.2 Create "Skip to navigation" link
+#### 4.3 Style skip links (visible on focus only)
+#### 4.4 Test skip links with Tab key
+#### 4.5 Ensure all interactive elements are keyboard accessible
+#### 4.6 Implement logical tab order (matches visual order)
+#### 4.7 Add visible focus indicators (3px outline)
+#### 4.8 Ensure no keyboard traps in modals
+#### 4.9 Test full site with keyboard only (no mouse)
+#### 4.10 Run linter and verify zero warnings
+#### 4.11 Run full test suite and verify all tests pass
+#### 4.12 Build project and verify successful compilation
+#### 4.13 Verify system functionality end-to-end
+#### 4.14 Update Docker configurations if deployment changes needed
+#### 4.15 Update Helm chart if deployment changes needed
+
+### 5.0 Create accessible focus management system
+#### 5.1 Build focus trap utility for modals
+#### 5.2 Implement focus return on modal close
+#### 5.3 Create focus indicator styles (high contrast)
+#### 5.4 Add :focus-visible for keyboard-only focus
+#### 5.5 Ensure focus is visible for all interactive elements
+#### 5.6 Test focus management in dialogs
+#### 5.7 Test focus restoration after actions
+#### 5.8 Run linter and verify zero warnings
+#### 5.9 Run full test suite and verify all tests pass
+#### 5.10 Build project and verify successful compilation
+#### 5.11 Verify system functionality end-to-end
+#### 5.12 Update Docker configurations if deployment changes needed
+#### 5.13 Update Helm chart if deployment changes needed
+
+### 6.0 Enhance form accessibility
+#### 6.1 Associate labels with inputs using htmlFor/id
+#### 6.2 Add aria-describedby for help text
+#### 6.3 Implement aria-invalid for error states
+#### 6.4 Create role="alert" for error messages
+#### 6.5 Add aria-required for required fields
+#### 6.6 Ensure error messages are announced
+#### 6.7 Create accessible autocomplete
+#### 6.8 Test forms with screen reader
+#### 6.9 Add validation instructions before form
+#### 6.10 Run linter and verify zero warnings
+#### 6.11 Run full test suite and verify all tests pass
+#### 6.12 Build project and verify successful compilation
+#### 6.13 Verify system functionality end-to-end
+#### 6.14 Update Docker configurations if deployment changes needed
+#### 6.15 Update Helm chart if deployment changes needed
+
+### 7.0 Implement ARIA live regions for dynamic content
+#### 7.1 Create live region for search results
+#### 7.2 Add aria-live="polite" for non-urgent updates
+#### 7.3 Add aria-live="assertive" for urgent alerts
+#### 7.4 Implement role="status" for status messages
+#### 7.5 Create role="alert" for errors
+#### 7.6 Test live region announcements
+#### 7.7 Ensure loading states are announced
+#### 7.8 Add announcements for search results count
+#### 7.9 Run linter and verify zero warnings
+#### 7.10 Run full test suite and verify all tests pass
+#### 7.11 Build project and verify successful compilation
+#### 7.12 Verify system functionality end-to-end
+#### 7.13 Update Docker configurations if deployment changes needed
+#### 7.14 Update Helm chart if deployment changes needed
+
+### 8.0 Implement reduced motion support
+#### 8.1 Add prefers-reduced-motion media query
+#### 8.2 Disable animations for reduced motion users
+#### 8.3 Reduce transition durations to 0.01ms
+#### 8.4 Provide pause controls for auto-play content
+#### 8.5 Test with reduced motion system setting
+#### 8.6 Ensure no parallax scrolling
+#### 8.7 Add toggle for animation preferences
+#### 8.8 Run linter and verify zero warnings
+#### 8.9 Run full test suite and verify all tests pass
+#### 8.10 Build project and verify successful compilation
+#### 8.11 Verify system functionality end-to-end
+#### 8.12 Update Docker configurations if deployment changes needed
+#### 8.13 Update Helm chart if deployment changes needed
+
+### 9.0 Optimize mobile accessibility
+#### 9.1 Ensure touch targets are 44x44px minimum
+#### 9.2 Add 8px spacing between touch targets
+#### 9.3 Test with VoiceOver on iOS
+#### 9.4 Test with TalkBack on Android
+#### 9.5 Enable pinch-to-zoom (no user-scalable=no)
+#### 9.6 Ensure content works in landscape and portrait
+#### 9.7 Test swipe gestures with screen reader
+#### 9.8 Run linter and verify zero warnings
+#### 9.9 Run full test suite and verify all tests pass
+#### 9.10 Build project and verify successful compilation
+#### 9.11 Verify system functionality end-to-end
+#### 9.12 Update Docker configurations if deployment changes needed
+#### 9.13 Update Helm chart if deployment changes needed
+
+### 10.0 User testing and continuous compliance
+#### 10.1 Recruit 5+ users with disabilities for testing
+#### 10.2 Conduct usability testing with screen reader users
+#### 10.3 Test with low-vision users
+#### 10.4 Test with keyboard-only users
+#### 10.5 Gather feedback and prioritize improvements
+#### 10.6 Create accessibility statement page
+#### 10.7 Document known issues and roadmap
+#### 10.8 Schedule quarterly accessibility audits
+#### 10.9 Train team on accessibility best practices
+#### 10.10 Add accessibility to PR checklist
+#### 10.11 Achieve 100 Lighthouse accessibility score
+#### 10.12 Verify WCAG 2.1 AA compliance
+#### 10.13 Run linter and verify zero warnings
+#### 10.14 Run full test suite and verify all tests pass
+#### 10.15 Build project and verify successful compilation
+#### 10.16 Verify system functionality end-to-end
+#### 10.17 Update Docker configurations if deployment changes needed
+#### 10.18 Update Helm chart if deployment changes needed
+
+---
+
+**Status:** Ready for Implementation
+**Priority:** P1 - Foundation (parallel to MVP)
+**Estimated Duration:** 7 weeks
+**Dependencies:** PRD 0015 (design system components must be accessible)

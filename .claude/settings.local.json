@@ -55,7 +55,8 @@
       "Bash(git log:*)",
       "WebFetch(domain:www.claude.com)",
       "Skill(create-prd)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Skill(generate-tasks)"
     ],
     "deny": [],
     "ask": []
