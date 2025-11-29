@@ -56,7 +56,10 @@
       "WebFetch(domain:www.claude.com)",
       "Skill(create-prd)",
       "Bash(ls:*)",
-      "Skill(generate-tasks)"
+      "Skill(generate-tasks)",
+      "Bash(npx --version:*)",
+      "Bash(npx create-nx-workspace@latest:*)",
+      "Bash(npx nx g:*)"
     ],
     "deny": [],
     "ask": []

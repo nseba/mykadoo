@@ -1,20 +1,43 @@
-# Dependencies
-node_modules/
+# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+
+# compiled output
+dist
+tmp
+out-tsc
+build
+.next
+out
+
+# dependencies
+node_modules
 .pnp
 .pnp.js
 
 # Testing
-coverage/
+coverage
 .nyc_output
-test-results/
-playwright-report/
-playwright/.cache/
+test-results
+playwright-report
+playwright/.cache
 
-# Production builds
-dist/
-build/
-.next/
-out/
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
 # Environment variables
 .env
@@ -32,29 +55,28 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
-# OS files
+# misc
+/.sass-cache
+/connect.lock
+/libpeerconnection.log
+testem.log
+/typings
+
+# System Files
 .DS_Store
 Thumbs.db
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.project
-.classpath
-.settings/
-
 # Cache
 .eslintcache
-.cache/
-.parcel-cache/
+.cache
+.parcel-cache
+.nx/cache
+.nx/workspace-data
 
 # Temporary files
 *.tmp
 *.temp
-.temp/
+.temp
 
 # Database
 *.sqlite
@@ -63,17 +85,20 @@ Thumbs.db
 # Secrets
 *.pem
 *.key
-secrets/
-.secrets/
+secrets
+.secrets
 
 # Docker
-.docker/
+.docker
 
 # Monorepo
-.turbo/
-.nx/
+.turbo
 
 # Misc
 .vercel
 .netlify
-.firebase/
+.firebase
+
+# Nx
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md
