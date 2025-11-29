@@ -1,0 +1,148 @@
+# Production environment values for Mykadoo
+# Override default values for production deployment
+
+global:
+  environment: production
+  domain: mykadoo.com
+
+# Production replica counts
+replicaCount:
+  web: 5
+  api: 5
+
+# Use production image tags (semantic versioning)
+image:
+  tag: v1.0.0 # Update with each release
+
+# Ingress for production
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+  hosts:
+    - host: mykadoo.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: web
+    - host: www.mykadoo.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: web
+    - host: api.mykadoo.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: api
+  tls:
+    - secretName: mykadoo-prod-tls
+      hosts:
+        - mykadoo.com
+        - www.mykadoo.com
+        - api.mykadoo.com
+
+# Production resources with higher limits
+resources:
+  web:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+  api:
+    requests:
+      memory: "1Gi"
+      cpu: "1000m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+
+# Aggressive autoscaling for production
+autoscaling:
+  web:
+    enabled: true
+    minReplicas: 5
+    maxReplicas: 20
+    targetCPUUtilizationPercentage: 60
+    targetMemoryUtilizationPercentage: 70
+  api:
+    enabled: true
+    minReplicas: 5
+    maxReplicas: 20
+    targetCPUUtilizationPercentage: 60
+    targetMemoryUtilizationPercentage: 70
+
+# Production database configuration
+postgresql:
+  primary:
+    persistence:
+      enabled: true
+      size: 100Gi
+      storageClass: "ssd" # Use fast storage
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "1000m"
+      limits:
+        memory: "2Gi"
+        cpu: "2000m"
+  readReplicas:
+    replicaCount: 2
+    persistence:
+      enabled: true
+      size: 100Gi
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "1000m"
+      limits:
+        memory: "2Gi"
+        cpu: "2000m"
+
+# Production Redis configuration
+redis:
+  master:
+    persistence:
+      enabled: true
+      size: 20Gi
+      storageClass: "ssd"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+  replica:
+    replicaCount: 3
+    persistence:
+      enabled: true
+      size: 20Gi
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+
+# Enable monitoring for production
+serviceMonitor:
+  enabled: true
+  interval: 15s
+  scrapeTimeout: 10s
+
+# Pod disruption budget - ensure high availability
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 3
+
+# Environment variables
+env:
+  NODE_ENV: production

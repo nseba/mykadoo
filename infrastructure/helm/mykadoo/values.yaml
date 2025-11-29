@@ -1,0 +1,205 @@
+# Default values for Mykadoo Helm chart
+# This is a YAML-formatted file.
+
+# Global configuration
+global:
+  environment: production
+  domain: mykadoo.com
+
+# Replica counts for each service
+replicaCount:
+  web: 3
+  api: 3
+
+# Image configuration
+image:
+  registry: docker.io
+  repository:
+    web: mykadoo/web
+    api: mykadoo/api
+  tag: latest
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+# Service configuration
+service:
+  type: ClusterIP
+  web:
+    port: 80
+    targetPort: 3000
+    name: http
+  api:
+    port: 80
+    targetPort: 3000
+    name: http
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  hosts:
+    - host: mykadoo.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: web
+    - host: api.mykadoo.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: api
+  tls:
+    - secretName: mykadoo-tls
+      hosts:
+        - mykadoo.com
+        - api.mykadoo.com
+
+# Resource limits and requests
+resources:
+  web:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  api:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+
+# Autoscaling configuration
+autoscaling:
+  web:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  api:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+# Health check configuration
+healthCheck:
+  web:
+    liveness:
+      path: /api/health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+    readiness:
+      path: /api/health
+      initialDelaySeconds: 10
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 3
+  api:
+    liveness:
+      path: /api/health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+    readiness:
+      path: /api/health
+      initialDelaySeconds: 10
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 3
+
+# Environment variables
+env:
+  NODE_ENV: production
+  # Database connection will be set via ConfigMap/Secret
+  # API URLs will be set via ConfigMap
+
+# PostgreSQL configuration (Bitnami chart)
+postgresql:
+  enabled: true
+  auth:
+    username: mykadoo_user
+    password: "" # Set via Secret in production
+    database: mykadoo
+  primary:
+    persistence:
+      enabled: true
+      size: 20Gi
+      storageClass: ""
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+
+# Redis configuration (Bitnami chart)
+redis:
+  enabled: true
+  auth:
+    password: "" # Set via Secret in production
+  master:
+    persistence:
+      enabled: true
+      size: 8Gi
+      storageClass: ""
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+
+# Security context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  fsGroup: 1001
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false
+
+# Pod disruption budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+# Network policy
+networkPolicy:
+  enabled: false
+
+# Service monitor for Prometheus
+serviceMonitor:
+  enabled: false
+  interval: 30s
+  scrapeTimeout: 10s
+
+# Node selector, tolerations, and affinity
+nodeSelector: {}
+tolerations: []
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - mykadoo
+          topologyKey: kubernetes.io/hostname

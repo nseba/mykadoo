@@ -1,0 +1,27 @@
+apiVersion: v2
+name: mykadoo
+description: AI-powered gift search engine platform
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - mykadoo
+  - gift-search
+  - ai
+  - e-commerce
+home: https://mykadoo.com
+sources:
+  - https://github.com/mykadoo/mykadoo2
+maintainers:
+  - name: Mykadoo Team
+    email: dev@mykadoo.com
+icon: https://mykadoo.com/icon.png
+dependencies:
+  - name: postgresql
+    version: 12.x.x
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+  - name: redis
+    version: 18.x.x
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled

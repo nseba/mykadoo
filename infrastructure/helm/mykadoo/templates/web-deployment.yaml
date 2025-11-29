@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mykadoo.fullname" . }}-web
+  labels:
+    {{- include "mykadoo.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+spec:
+  {{- if not .Values.autoscaling.web.enabled }}
+  replicas: {{ .Values.replicaCount.web }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "mykadoo.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: web
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      labels:
+        {{- include "mykadoo.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: web
+    spec:
+      {{- with .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      containers:
+        - name: web
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository.web }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.web.targetPort }}
+              protocol: TCP
+          env:
+            - name: NODE_ENV
+              value: {{ .Values.env.NODE_ENV }}
+            - name: PORT
+              value: "{{ .Values.service.web.targetPort }}"
+            - name: NEXT_PUBLIC_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "mykadoo.fullname" . }}-config
+                  key: api_url
+          envFrom:
+            - configMapRef:
+                name: {{ include "mykadoo.fullname" . }}-config
+            - secretRef:
+                name: {{ include "mykadoo.fullname" . }}-secret
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.healthCheck.web.liveness.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.healthCheck.web.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.healthCheck.web.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.healthCheck.web.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.healthCheck.web.liveness.failureThreshold }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.healthCheck.web.readiness.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.healthCheck.web.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.healthCheck.web.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.healthCheck.web.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.healthCheck.web.readiness.failureThreshold }}
+          resources:
+            {{- toYaml .Values.resources.web | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

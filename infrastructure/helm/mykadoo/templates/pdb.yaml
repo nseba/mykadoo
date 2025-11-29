@@ -1,0 +1,30 @@
+{{- if .Values.podDisruptionBudget.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "mykadoo.fullname" . }}-web
+  labels:
+    {{- include "mykadoo.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+spec:
+  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "mykadoo.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: web
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "mykadoo.fullname" . }}-api
+  labels:
+    {{- include "mykadoo.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "mykadoo.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api
+{{- end }}
