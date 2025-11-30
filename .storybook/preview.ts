@@ -1,5 +1,4 @@
 import type { Preview } from '@storybook/react';
-import '@mykadoo/design-system';
 import '../libs/ui/design-system/src/styles/globals.css';
 
 const preview: Preview = {

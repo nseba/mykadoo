@@ -59,7 +59,10 @@
       "Skill(generate-tasks)",
       "Bash(npx --version:*)",
       "Bash(npx create-nx-workspace@latest:*)",
-      "Bash(npx nx g:*)"
+      "Bash(npx nx g:*)",
+      "Bash(helm version:*)",
+      "Bash(helm lint:*)",
+      "Bash(timeout 30 yarn storybook:*)"
     ],
     "deny": [],
     "ask": []
