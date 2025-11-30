@@ -1,0 +1,99 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Design System/Introduction" />
+
+# Mykadoo Design System
+
+Welcome to the Mykadoo Design System documentation. This design system provides a comprehensive set of design tokens, components, and guidelines to build consistent, accessible, and beautiful user interfaces across the Mykadoo platform.
+
+## Brand Identity
+
+**Mykadoo** is an AI-powered gift search engine that helps users find the perfect gifts.
+
+### Brand Personality
+- **Warm** - Friendly and inviting
+- **Trustworthy** - Reliable and dependable
+- **Modern** - Clean and contemporary
+- **Approachable** - Easy to use and understand
+
+### Colors
+
+Our color palette is built around two primary colors:
+
+- **Primary (Coral):** `#FF6B6B` - Warm, inviting, represents joy and gift-giving
+- **Secondary (Blue):** `#339AF0` - Trustworthy, reliable, represents intelligence
+
+### Typography
+
+- **Font Family:** Inter - A modern, highly legible sans-serif typeface
+- **Headings:** Bold weights (600-700) with tight letter spacing
+- **Body:** Regular weight (400) with comfortable line height (1.625)
+
+### Spacing
+
+Based on a **4px grid system** for consistent rhythm and alignment throughout the interface.
+
+## Using This Design System
+
+### Installation
+
+```bash
+yarn add @mykadoo/design-system
+```
+
+### Import in Your Application
+
+```typescript
+// Import design tokens
+import { tokens } from '@mykadoo/design-system';
+
+// Import global styles
+import '@mykadoo/design-system';
+
+// Import specific components (when available)
+import { Button, Input, Card } from '@mykadoo/design-system';
+```
+
+### Design Tokens
+
+All design tokens are exported as TypeScript constants:
+
+```typescript
+import { colors, typography, spacing, shadows } from '@mykadoo/design-system';
+
+// Use in your components
+const primaryColor = colors.primary[300]; // #FF6B6B
+const headingFont = typography.textStyles.h1;
+const cardPadding = spacing[6]; // 1.5rem
+```
+
+### Tailwind CSS
+
+The design system is configured with Tailwind CSS. All design tokens are available as Tailwind utility classes:
+
+```tsx
+<div className="bg-primary-300 text-white p-6 rounded-lg shadow-md">
+  <h1 className="text-3xl font-bold">Hello Mykadoo!</h1>
+</div>
+```
+
+## Accessibility
+
+All components in this design system are built with accessibility in mind:
+
+- **WCAG 2.1 AA compliant** - Minimum contrast ratio of 4.5:1
+- **Keyboard navigation** - All interactive elements are keyboard accessible
+- **Screen reader support** - Proper ARIA labels and semantic HTML
+- **Focus indicators** - Clear focus states for all interactive elements
+
+## Support
+
+For questions, issues, or contributions:
+- Design Team: design@mykadoo.com
+- GitHub: [mykadoo/mykadoo-design-system](https://github.com/mykadoo)
+- Documentation: [docs.mykadoo.com](https://docs.mykadoo.com)
+
+---
+
+**Version:** 1.0.0
+**Last Updated:** November 2024
