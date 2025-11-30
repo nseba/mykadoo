@@ -1,0 +1,9 @@
+<svg width="200" height="48" viewBox="0 0 200 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Heart Icon - Monochrome -->
+  <path d="M24 10.5C24 10.5 16 4 12 8C8 12 8 16 12 20L24 32L36 20C40 16 40 12 36 8C32 4 24 10.5 24 10.5Z" fill="#212121"/>
+
+  <!-- Mykadoo Text - Monochrome -->
+  <text x="48" y="28" font-family="Inter, system-ui, sans-serif" font-size="24" font-weight="700" fill="#212121">
+    Mykadoo
+  </text>
+</svg>
