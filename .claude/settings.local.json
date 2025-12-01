@@ -62,7 +62,8 @@
       "Bash(npx nx g:*)",
       "Bash(helm version:*)",
       "Bash(helm lint:*)",
-      "Bash(timeout 30 yarn storybook:*)"
+      "Bash(timeout 30 yarn storybook:*)",
+      "Bash(yarn nx show:*)"
     ],
     "deny": [],
     "ask": []
