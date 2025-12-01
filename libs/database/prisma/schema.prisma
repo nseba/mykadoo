@@ -1,0 +1,447 @@
+// Prisma Schema for Mykadoo Platform
+// AI-powered gift search engine with affiliate integrations
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// USER MANAGEMENT
+// =============================================================================
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  emailVerified DateTime? @map("email_verified")
+  password      String? // Null for OAuth users
+  name          String?
+  avatar        String?
+  role          UserRole  @default(FREE)
+  status        UserStatus @default(ACTIVE)
+
+  // OAuth providers
+  accounts      Account[]
+
+  // User preferences
+  profile       UserProfile?
+
+  // AI interactions
+  conversations Conversation[]
+  searches      Search[]
+
+  // Wishlists and favorites
+  wishlists     Wishlist[]
+  favorites     Favorite[]
+
+  // Subscription
+  subscription  Subscription?
+
+  // Password reset tokens
+  passwordResetTokens PasswordResetToken[]
+
+  // Email verification tokens
+  emailVerificationTokens EmailVerificationToken[]
+
+  // Tracking
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  lastLoginAt   DateTime? @map("last_login_at")
+
+  @@map("users")
+}
+
+enum UserRole {
+  FREE
+  GOLD
+  PLATINUM
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+model Account {
+  id                String  @id @default(uuid())
+  userId            String  @map("user_id")
+  type              String // oauth, email
+  provider          String // google, facebook, email
+  providerAccountId String  @map("provider_account_id")
+  refreshToken      String? @map("refresh_token") @db.Text
+  accessToken       String? @map("access_token") @db.Text
+  expiresAt         Int?    @map("expires_at")
+  tokenType         String? @map("token_type")
+  scope             String?
+  idToken           String? @map("id_token") @db.Text
+  sessionState      String? @map("session_state")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model UserProfile {
+  id     String @id @default(uuid())
+  userId String @unique @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Personal info
+  phone         String?
+  dateOfBirth   DateTime? @map("date_of_birth")
+  gender        String?
+  location      String?
+  timezone      String?
+
+  // Preferences
+  currency              String   @default("USD")
+  language              String   @default("en")
+  preferredAIAgent      String?  @map("preferred_ai_agent") // Sophie, Max, Elena, Jordan
+  notificationsEnabled  Boolean  @default(true) @map("notifications_enabled")
+  emailNotifications    Boolean  @default(true) @map("email_notifications")
+
+  // Gift preferences
+  budgetMin     Float?   @map("budget_min")
+  budgetMax     Float?   @map("budget_max")
+  interests     String[] // Array of interest tags
+  occasions     String[] // Birthdays, anniversaries, holidays, etc.
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("user_profiles")
+}
+
+// =============================================================================
+// SUBSCRIPTION & BILLING
+// =============================================================================
+
+model Subscription {
+  id        String   @id @default(uuid())
+  userId    String   @unique @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  plan              SubscriptionPlan
+  status            SubscriptionStatus
+  currentPeriodStart DateTime          @map("current_period_start")
+  currentPeriodEnd   DateTime          @map("current_period_end")
+  cancelAtPeriodEnd  Boolean          @default(false) @map("cancel_at_period_end")
+
+  // Stripe/Payment provider
+  stripeCustomerId       String? @map("stripe_customer_id")
+  stripeSubscriptionId   String? @map("stripe_subscription_id")
+  stripePriceId          String? @map("stripe_price_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([status])
+  @@map("subscriptions")
+}
+
+enum SubscriptionPlan {
+  FREE
+  GOLD
+  PLATINUM
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  INCOMPLETE
+  INCOMPLETE_EXPIRED
+  PAST_DUE
+  TRIALING
+  UNPAID
+}
+
+// =============================================================================
+// AI CONVERSATIONS & SEARCH
+// =============================================================================
+
+model Conversation {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title     String? // Auto-generated summary
+  agentType String   @map("agent_type") // Sophie, Max, Elena, Jordan
+  context   Json? // Stored conversation context
+
+  messages  Message[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("conversations")
+}
+
+model Message {
+  id             String   @id @default(uuid())
+  conversationId String   @map("conversation_id")
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  role      MessageRole
+  content   String      @db.Text
+  metadata  Json? // Model used, cost, latency, etc.
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([conversationId])
+  @@index([createdAt])
+  @@map("messages")
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+model Search {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id") // Nullable for anonymous searches
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  query         String
+  filters       Json? // Budget, category, occasion, etc.
+  results       SearchResult[]
+
+  // AI model used
+  model         String? // GPT-4, GPT-3.5, Claude Opus, etc.
+  cost          Float? // Cost in USD
+  latency       Int? // Response time in ms
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("searches")
+}
+
+model SearchResult {
+  id        String   @id @default(uuid())
+  searchId  String   @map("search_id")
+  search    Search   @relation(fields: [searchId], references: [id], onDelete: Cascade)
+
+  productId String   @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id])
+
+  rank      Int // Position in search results
+  score     Float? // Relevance score
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([searchId])
+  @@index([productId])
+  @@map("search_results")
+}
+
+// =============================================================================
+// PRODUCTS & AFFILIATE DATA
+// =============================================================================
+
+model Product {
+  id          String   @id @default(uuid())
+
+  // Product details
+  title       String
+  description String?  @db.Text
+  imageUrl    String?  @map("image_url")
+  price       Float
+  currency    String   @default("USD")
+  rating      Float?
+  reviewCount Int?     @map("review_count")
+
+  // Affiliate info
+  affiliateNetwork  String   @map("affiliate_network") // Amazon, ShareASale, CJ
+  externalId        String   @map("external_id") // ASIN, merchant product ID
+  affiliateLink     String   @map("affiliate_link") @db.Text
+
+  // Categorization
+  category    String?
+  tags        String[]
+  occasions   String[] // Birthday, anniversary, holiday, etc.
+  ageGroups   String[] @map("age_groups") // Kids, teens, adults, seniors
+
+  // Tracking
+  clicks      Int      @default(0)
+  conversions Int      @default(0)
+  revenue     Float    @default(0) // Total affiliate revenue
+
+  // Relations
+  searchResults  SearchResult[]
+  wishlistItems  WishlistItem[]
+  favorites      Favorite[]
+
+  // Metadata
+  lastSyncedAt DateTime? @map("last_synced_at")
+  isActive     Boolean   @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([affiliateNetwork, externalId])
+  @@index([category])
+  @@index([isActive])
+  @@index([createdAt])
+  @@map("products")
+}
+
+// =============================================================================
+// WISHLISTS & FAVORITES
+// =============================================================================
+
+model Wishlist {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  isPublic    Boolean @default(false) @map("is_public")
+  shareCode   String? @unique @map("share_code") // For public sharing
+
+  items       WishlistItem[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([shareCode])
+  @@map("wishlists")
+}
+
+model WishlistItem {
+  id         String   @id @default(uuid())
+  wishlistId String   @map("wishlist_id")
+  wishlist   Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+
+  productId  String   @map("product_id")
+  product    Product  @relation(fields: [productId], references: [id])
+
+  notes      String?
+  priority   Int      @default(0) // For sorting
+  isPurchased Boolean @default(false) @map("is_purchased")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([wishlistId])
+  @@index([productId])
+  @@map("wishlist_items")
+}
+
+model Favorite {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  productId String   @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([productId])
+  @@map("favorites")
+}
+
+// =============================================================================
+// ANALYTICS & TRACKING
+// =============================================================================
+
+model AffiliateClick {
+  id        String   @id @default(uuid())
+
+  productId String   @map("product_id")
+  userId    String?  @map("user_id") // Nullable for anonymous clicks
+
+  // Tracking
+  ipAddress    String?  @map("ip_address")
+  userAgent    String?  @map("user_agent") @db.Text
+  referer      String?
+
+  // Conversion tracking
+  converted    Boolean  @default(false)
+  convertedAt  DateTime? @map("converted_at")
+  orderValue   Float?   @map("order_value")
+  commission   Float?
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([productId])
+  @@index([userId])
+  @@index([converted])
+  @@index([createdAt])
+  @@map("affiliate_clicks")
+}
+
+model UserEvent {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id") // Nullable for anonymous events
+
+  eventType String   @map("event_type") // page_view, search, click, etc.
+  eventData Json?    @map("event_data")
+
+  // Session tracking
+  sessionId String?  @map("session_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([eventType])
+  @@index([sessionId])
+  @@index([createdAt])
+  @@map("user_events")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  token     String   @unique // SHA-256 hashed token
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false) // Mark as used after password reset
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  token     String   @unique // SHA-256 hashed token
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false) // Mark as used after verification
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("email_verification_tokens")
+}

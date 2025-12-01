@@ -1,0 +1,257 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - develop    # Auto-deploy to staging
+      - main       # Auto-deploy to production (with approval)
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  NODE_VERSION: '20.x'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-images:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      web-tag: ${{ steps.meta-web.outputs.tags }}
+      api-tag: ${{ steps.meta-api.outputs.tags }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for web
+        id: meta-web
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Extract metadata for api
+        id: meta-api
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push web image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./apps/web/Dockerfile
+          push: true
+          tags: ${{ steps.meta-web.outputs.tags }}
+          labels: ${{ steps.meta-web.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push api image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./apps/api/Dockerfile
+          push: true
+          tags: ${{ steps.meta-api.outputs.tags }}
+          labels: ${{ steps.meta-api.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build-images
+    if: github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+    environment:
+      name: staging
+      url: https://staging.mykadoo.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: 'latest'
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Configure kubectl
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG_STAGING }}" | base64 -d > $HOME/.kube/config
+
+      - name: Deploy to staging
+        run: |
+          helm upgrade --install mykadoo ./infrastructure/helm/mykadoo \
+            --namespace staging \
+            --create-namespace \
+            --values ./infrastructure/helm/mykadoo/values-staging.yaml \
+            --set web.image.tag=${{ github.sha }} \
+            --set api.image.tag=${{ github.sha }} \
+            --set web.image.repository=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web \
+            --set api.image.repository=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api \
+            --wait \
+            --timeout 10m
+
+      - name: Run smoke tests
+        run: |
+          echo "🧪 Running smoke tests against staging..."
+          # Wait for deployment to be ready
+          kubectl rollout status deployment/mykadoo-web -n staging --timeout=5m
+          kubectl rollout status deployment/mykadoo-api -n staging --timeout=5m
+
+          # Basic health checks
+          curl -f https://staging.mykadoo.com/health || exit 1
+          curl -f https://api.staging.mykadoo.com/health || exit 1
+
+          echo "✅ Smoke tests passed"
+
+      - name: Notify deployment
+        if: always()
+        run: |
+          echo "📢 Deployment to staging: ${{ job.status }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Author: ${{ github.actor }}"
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build-images
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    environment:
+      name: production
+      url: https://mykadoo.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: 'latest'
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Configure kubectl
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG_PRODUCTION }}" | base64 -d > $HOME/.kube/config
+
+      - name: Backup current deployment
+        run: |
+          echo "💾 Creating backup of current deployment..."
+          kubectl get all -n production -o yaml > backup-$(date +%Y%m%d-%H%M%S).yaml
+
+      - name: Deploy to production (Blue-Green)
+        run: |
+          helm upgrade --install mykadoo ./infrastructure/helm/mykadoo \
+            --namespace production \
+            --create-namespace \
+            --values ./infrastructure/helm/mykadoo/values-production.yaml \
+            --set web.image.tag=${{ github.sha }} \
+            --set api.image.tag=${{ github.sha }} \
+            --set web.image.repository=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web \
+            --set api.image.repository=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api \
+            --wait \
+            --timeout 15m
+
+      - name: Gradual traffic rollout
+        run: |
+          echo "🚦 Starting gradual traffic rollout..."
+
+          # Wait for new pods to be ready
+          kubectl rollout status deployment/mykadoo-web -n production --timeout=10m
+          kubectl rollout status deployment/mykadoo-api -n production --timeout=10m
+
+          # 10% traffic
+          echo "Routing 10% traffic to new version..."
+          kubectl patch virtualservice mykadoo -n production --type merge -p '{"spec":{"http":[{"route":[{"destination":{"host":"mykadoo-web","subset":"v2"},"weight":10},{"destination":{"host":"mykadoo-web","subset":"v1"},"weight":90}]}]}}'
+          sleep 300 # 5 minutes
+
+          # Check error rate
+          ERROR_RATE=$(kubectl logs -n production -l app=mykadoo-web --tail=1000 | grep ERROR | wc -l)
+          if [ $ERROR_RATE -gt 10 ]; then
+            echo "❌ Error rate too high, rolling back..."
+            exit 1
+          fi
+
+          # 50% traffic
+          echo "Routing 50% traffic to new version..."
+          kubectl patch virtualservice mykadoo -n production --type merge -p '{"spec":{"http":[{"route":[{"destination":{"host":"mykadoo-web","subset":"v2"},"weight":50},{"destination":{"host":"mykadoo-web","subset":"v1"},"weight":50}]}]}}'
+          sleep 600 # 10 minutes
+
+          # Final check
+          ERROR_RATE=$(kubectl logs -n production -l app=mykadoo-web --tail=1000 | grep ERROR | wc -l)
+          if [ $ERROR_RATE -gt 10 ]; then
+            echo "❌ Error rate too high, rolling back..."
+            exit 1
+          fi
+
+          # 100% traffic
+          echo "Routing 100% traffic to new version..."
+          kubectl patch virtualservice mykadoo -n production --type merge -p '{"spec":{"http":[{"route":[{"destination":{"host":"mykadoo-web","subset":"v2"},"weight":100}]}]}}'
+
+          echo "✅ Gradual rollout complete"
+
+      - name: Run smoke tests
+        run: |
+          echo "🧪 Running smoke tests against production..."
+
+          # Health checks
+          curl -f https://mykadoo.com/health || exit 1
+          curl -f https://api.mykadoo.com/health || exit 1
+
+          # Critical user journeys
+          curl -f https://mykadoo.com/ || exit 1
+          curl -f https://api.mykadoo.com/api/gifts?q=birthday || exit 1
+
+          echo "✅ Smoke tests passed"
+
+      - name: Notify deployment
+        if: always()
+        run: |
+          echo "📢 Deployment to production: ${{ job.status }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Author: ${{ github.actor }}"
+          echo "Timestamp: $(date)"
+
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          echo "🔄 Rolling back to previous version..."
+          helm rollback mykadoo -n production
+          kubectl rollout undo deployment/mykadoo-web -n production
+          kubectl rollout undo deployment/mykadoo-api -n production
+          echo "✅ Rollback complete"
