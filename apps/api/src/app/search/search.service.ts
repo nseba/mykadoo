@@ -1,12 +1,13 @@
 /**
  * Search Service
  *
- * Business logic for gift search and recommendations
+ * Business logic for gift search and recommendations with caching
  */
 
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { AIRecommendationService, VectorService } from '@mykadoo/ai';
 import type { GiftSearchRequest, GiftSearchResponse } from '@mykadoo/ai';
+import { CacheService, CacheKey, CacheTTL, getCacheConfig } from '@mykadoo/cache';
 import { SearchRequestDto } from './dto/search-request.dto';
 import { SearchResponseDto, GiftRecommendationDto } from './dto/search-response.dto';
 
@@ -15,10 +16,12 @@ export class SearchService {
   private readonly logger = new Logger(SearchService.name);
   private aiService: AIRecommendationService;
   private vectorService: VectorService;
+  private cacheService: CacheService;
 
   constructor() {
     this.aiService = new AIRecommendationService();
     this.vectorService = new VectorService();
+    this.cacheService = new CacheService(getCacheConfig());
   }
 
   /**
@@ -33,6 +36,24 @@ export class SearchService {
     }
 
     try {
+      // Build cache key from search parameters
+      const cacheKey = CacheKey.search({
+        occasion: dto.occasion,
+        relationship: dto.relationship,
+        ageRange: dto.ageRange,
+        budgetMin: dto.budgetMin,
+        budgetMax: dto.budgetMax,
+      });
+
+      // Try to get cached results
+      const cached = await this.cacheService.get<SearchResponseDto>(cacheKey);
+      if (cached) {
+        this.logger.log(`Cache hit for search: ${cacheKey}`);
+        return cached;
+      }
+
+      this.logger.log(`Cache miss for search: ${cacheKey}`);
+
       // Build AI search request
       const searchRequest: GiftSearchRequest = {
         occasion: dto.occasion,
@@ -74,7 +95,7 @@ export class SearchService {
         `Generated ${recommendations.length} recommendations using ${aiResponse.model} (cost: $${aiResponse.cost.toFixed(4)})`
       );
 
-      return {
+      const response: SearchResponseDto = {
         recommendations,
         searchId,
         metadata: {
@@ -85,6 +106,14 @@ export class SearchService {
         },
         success: true,
       };
+
+      // Cache the response (1 hour TTL)
+      await this.cacheService.set(cacheKey, response, {
+        ttl: CacheTTL.MEDIUM,
+        tags: ['search', dto.occasion, dto.relationship],
+      });
+
+      return response;
     } catch (error: any) {
       this.logger.error(`Search failed: ${error.message}`, error.stack);
 

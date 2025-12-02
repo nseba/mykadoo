@@ -1,7 +1,7 @@
 /**
  * Search Controller
  *
- * REST API endpoints for gift search
+ * REST API endpoints for gift search with caching and rate limiting
  */
 
 import {
@@ -15,6 +15,7 @@ import {
   ValidationPipe,
   UsePipes,
   Logger,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -26,9 +27,11 @@ import {
 import { SearchService } from './search.service';
 import { SearchRequestDto } from './dto/search-request.dto';
 import { SearchResponseDto } from './dto/search-response.dto';
+import { RateLimit } from '../common/guards/rate-limit.guard';
 
 @ApiTags('search')
 @Controller('api/search')
+@RateLimit({ maxRequests: 60, windowSeconds: 60 }) // 60 requests per minute
 export class SearchController {
   private readonly logger = new Logger(SearchController.name);
 
