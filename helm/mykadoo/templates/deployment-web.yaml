@@ -1,0 +1,66 @@
+{{- if .Values.web.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mykadoo.fullname" . }}-web
+  labels:
+    {{- include "mykadoo.web.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.web.autoscaling.enabled }}
+  replicas: {{ .Values.web.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "mykadoo.web.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      labels:
+        {{- include "mykadoo.web.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "mykadoo.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+      - name: web
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 12 }}
+        image: "{{ .Values.web.image.repository }}:{{ .Values.web.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.web.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.web.service.targetPort }}
+          protocol: TCP
+        livenessProbe:
+          {{- toYaml .Values.web.livenessProbe | nindent 12 }}
+        readinessProbe:
+          {{- toYaml .Values.web.readinessProbe | nindent 12 }}
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "mykadoo.fullname" . }}-config
+              key: NODE_ENV
+        - name: PORT
+          value: "{{ .Values.web.service.targetPort }}"
+        - name: NEXT_PUBLIC_API_URL
+          value: "https://{{ .Values.global.domain }}/api"
+        envFrom:
+        - configMapRef:
+            name: {{ include "mykadoo.fullname" . }}-config
+        resources:
+          {{- toYaml .Values.web.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

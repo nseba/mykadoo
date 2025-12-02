@@ -2,146 +2,78 @@ name: Pull Request Checks
 
 on:
   pull_request:
-    branches: [main, develop]
-
-env:
-  NODE_VERSION: '20.x'
+    types: [opened, synchronize, reopened]
 
 jobs:
-  lint:
-    name: Lint
+  size-label:
+    name: PR Size Label
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: codelytv/pr-size-labeler@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          xs_label: 'size/XS'
+          xs_max_size: 10
+          s_label: 'size/S'
+          s_max_size: 100
+          m_label: 'size/M'
+          m_max_size: 500
+          l_label: 'size/L'
+          l_max_size: 1000
+          xl_label: 'size/XL'
+
+  lint-commit:
+    name: Lint Commit Messages
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      
+      - name: Lint commits
+        uses: wagoid/commitlint-github-action@v5
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'yarn'
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
-      - name: Run linters
-        run: |
-          yarn nx run-many --target=lint --all --parallel=3 || true
-          echo "Linting completed (warnings allowed for now)"
-
-  test:
-    name: Test
+  affected:
+    name: Check Affected Projects
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: 20
           cache: 'yarn'
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
-      - name: Run tests
+      
+      - run: yarn install --frozen-lockfile
+      
+      - name: Check affected
         run: |
-          yarn nx run-many --target=test --all --parallel=3 --coverage || true
-          echo "Tests completed (failures allowed for now)"
+          echo "Affected apps:"
+          yarn nx affected:apps --base=origin/main
+          echo "Affected libs:"
+          yarn nx affected:libs --base=origin/main
 
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@v4
-        if: always()
-        with:
-          files: ./coverage/**/coverage-final.json
-          flags: unittests
-          fail_ci_if_error: false
-
-  build:
-    name: Build
+  coverage-report:
+    name: Coverage Report
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: 20
           cache: 'yarn'
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
-      - name: Build all projects
-        run: yarn nx run-many --target=build --all --parallel=3
-
-      - name: Check bundle sizes
-        run: |
-          echo "📦 Bundle Sizes:"
-          find dist -name "*.js" -type f -exec du -h {} \; | sort -h
-
-  storybook:
-    name: Build Storybook
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      
+      - run: yarn install --frozen-lockfile
+      - run: yarn nx affected --target=test --base=origin/main --coverage
+      
+      - name: Comment coverage
+        uses: romeovs/lcov-reporter-action@v0.3.1
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'yarn'
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
-      - name: Build Storybook
-        run: yarn build-storybook
-
-      - name: Upload Storybook artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: storybook-build
-          path: storybook-static/
-          retention-days: 7
-
-  dependency-audit:
-    name: Dependency Audit
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'yarn'
-
-      - name: Run security audit
-        run: |
-          yarn audit --level moderate || true
-          echo "Security audit completed (vulnerabilities reported but not blocking)"
-
-  pr-summary:
-    name: PR Summary
-    runs-on: ubuntu-latest
-    needs: [lint, test, build, storybook]
-    if: always()
-    steps:
-      - name: Check results
-        run: |
-          echo "✅ Pull Request checks completed"
-          echo "Lint: ${{ needs.lint.result }}"
-          echo "Test: ${{ needs.test.result }}"
-          echo "Build: ${{ needs.build.result }}"
-          echo "Storybook: ${{ needs.storybook.result }}"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          lcov-file: ./coverage/lcov.info

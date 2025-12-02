@@ -1,0 +1,18 @@
+apiVersion: v2
+name: mykadoo
+description: AI-powered gift search and recommendation platform
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - gifts
+  - ai
+  - recommendation
+  - ecommerce
+home: https://mykadoo.com
+sources:
+  - https://github.com/mykadoo/mykadoo
+maintainers:
+  - name: Mykadoo Team
+    email: team@mykadoo.com
+dependencies: []

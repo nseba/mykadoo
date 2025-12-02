@@ -1,0 +1,268 @@
+# Default values for mykadoo
+# This is a YAML-formatted file
+# Declare variables to be passed into your templates
+
+# Global configuration
+global:
+  environment: production
+  domain: mykadoo.com
+
+# API deployment configuration
+api:
+  enabled: true
+  replicaCount: 3
+  
+  image:
+    repository: mykadoo/api
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  
+  service:
+    type: ClusterIP
+    port: 3000
+    targetPort: 3000
+    
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+      
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+    
+  livenessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    
+  readinessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+# Web deployment configuration
+web:
+  enabled: true
+  replicaCount: 3
+  
+  image:
+    repository: mykadoo/web
+    pullPolicy: IfNotPresent
+    tag: "latest"
+    
+  service:
+    type: ClusterIP
+    port: 3000
+    targetPort: 3000
+    
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+      
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+    
+  livenessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    
+  readinessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+# PostgreSQL configuration
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "" # Set via secret
+    username: mykadoo_user
+    password: "" # Set via secret
+    database: mykadoo
+  primary:
+    persistence:
+      enabled: true
+      size: 20Gi
+      storageClass: "standard"
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+      requests:
+        cpu: 1000m
+        memory: 2Gi
+
+# Redis configuration
+redis:
+  enabled: true
+  auth:
+    password: "" # Set via secret
+  master:
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: "standard"
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+  hosts:
+    - host: mykadoo.com
+      paths:
+        - path: /
+          pathType: Prefix
+          backend: web
+        - path: /api
+          pathType: Prefix
+          backend: api
+    - host: www.mykadoo.com
+      paths:
+        - path: /
+          pathType: Prefix
+          backend: web
+  tls:
+    - secretName: mykadoo-tls
+      hosts:
+        - mykadoo.com
+        - www.mykadoo.com
+
+# ConfigMap for environment variables
+config:
+  NODE_ENV: production
+  LOG_LEVEL: info
+  RATE_LIMIT_MAX: "60"
+  RATE_LIMIT_WINDOW: "60"
+  NEXT_TELEMETRY_DISABLED: "1"
+  FEATURE_OAUTH_ENABLED: "true"
+  FEATURE_AI_RECOMMENDATIONS: "true"
+  FEATURE_CACHING_ENABLED: "true"
+
+# Secrets (reference to external secret management)
+secrets:
+  # Database
+  DATABASE_URL: "" # Set via external secret manager
+  POSTGRES_PASSWORD: ""
+  
+  # Redis
+  REDIS_PASSWORD: ""
+  
+  # JWT
+  JWT_SECRET: ""
+  JWT_REFRESH_SECRET: ""
+  SESSION_SECRET: ""
+  
+  # Email
+  SENDGRID_API_KEY: ""
+  
+  # OAuth
+  GOOGLE_CLIENT_ID: ""
+  GOOGLE_CLIENT_SECRET: ""
+  FACEBOOK_CLIENT_ID: ""
+  FACEBOOK_CLIENT_SECRET: ""
+  
+  # AI Services
+  OPENAI_API_KEY: ""
+  ANTHROPIC_API_KEY: ""
+  PINECONE_API_KEY: ""
+  
+  # Affiliates
+  AMAZON_ASSOCIATE_ID: ""
+  AMAZON_ACCESS_KEY: ""
+  AMAZON_SECRET_KEY: ""
+  SHAREASALE_AFFILIATE_ID: ""
+  SHAREASALE_API_TOKEN: ""
+  CJ_AFFILIATE_ID: ""
+  CJ_API_KEY: ""
+  
+  # Monitoring
+  SENTRY_DSN: ""
+  DATADOG_API_KEY: ""
+  
+  # Storage
+  AWS_ACCESS_KEY_ID: ""
+  AWS_SECRET_ACCESS_KEY: ""
+
+# Service Account
+serviceAccount:
+  create: true
+  annotations: {}
+  name: "mykadoo"
+
+# Pod Security
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  fsGroup: 1001
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - mykadoo-api
+                  - mykadoo-web
+          topologyKey: kubernetes.io/hostname

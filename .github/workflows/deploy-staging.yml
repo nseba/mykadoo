@@ -2,115 +2,45 @@ name: Deploy to Staging
 
 on:
   push:
-    branches:
-      - main
+    branches: [develop]
   workflow_dispatch:
 
 env:
-  NAMESPACE: mykadoo-staging
-  HELM_CHART: ./infrastructure/helm/mykadoo
-  VALUES_FILE: ./infrastructure/helm/mykadoo/values-staging.yaml
+  ENVIRONMENT: staging
 
 jobs:
-  deploy-staging:
-    name: Deploy to Staging Environment
+  deploy:
+    name: Deploy to Staging
     runs-on: ubuntu-latest
     environment:
       name: staging
       url: https://staging.mykadoo.com
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
+      
       - name: Configure kubectl
         uses: azure/k8s-set-context@v3
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBE_CONFIG_STAGING }}
-
-      - name: Setup Helm
-        uses: azure/setup-helm@v3
-        with:
-          version: '3.13.0'
-
-      - name: Update Helm dependencies
+      
+      - name: Deploy with Helm
         run: |
-          cd ${{ env.HELM_CHART }}
-          helm dependency update
-
-      - name: Deploy to Kubernetes
-        run: |
-          helm upgrade --install mykadoo ${{ env.HELM_CHART }} \
-            --namespace ${{ env.NAMESPACE }} \
-            --create-namespace \
-            --values ${{ env.VALUES_FILE }} \
-            --set image.tag=${{ github.sha }} \
-            --set postgresql.auth.password=${{ secrets.POSTGRES_PASSWORD_STAGING }} \
-            --set redis.auth.password=${{ secrets.REDIS_PASSWORD_STAGING }} \
+          helm upgrade --install mykadoo ./helm/mykadoo \
+            --namespace mykadoo-staging \
+            --values helm/mykadoo/values-staging.yaml \
+            --set api.image.tag=${{ github.sha }} \
+            --set web.image.tag=${{ github.sha }} \
             --wait \
-            --timeout 10m \
-            --atomic
-
+            --timeout 5m
+      
       - name: Verify deployment
         run: |
-          kubectl rollout status deployment/mykadoo-web -n ${{ env.NAMESPACE }} --timeout=5m
-          kubectl rollout status deployment/mykadoo-api -n ${{ env.NAMESPACE }} --timeout=5m
-
+          kubectl rollout status deployment/mykadoo-api -n mykadoo-staging
+          kubectl rollout status deployment/mykadoo-web -n mykadoo-staging
+      
       - name: Run smoke tests
         run: |
-          # Wait for services to be ready
-          sleep 30
-
-          # Test web health endpoint
-          kubectl run curl-test --image=curlimages/curl:latest --rm -i --restart=Never -n ${{ env.NAMESPACE }} -- \
-            curl -f http://mykadoo-web/api/health || exit 1
-
-          # Test API health endpoint
-          kubectl run curl-test --image=curlimages/curl:latest --rm -i --restart=Never -n ${{ env.NAMESPACE }} -- \
-            curl -f http://mykadoo-api/api/health || exit 1
-
-          echo "✅ Smoke tests passed"
-
-      - name: Get deployment info
-        if: always()
-        run: |
-          echo "## 📋 Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Environment:** Staging" >> $GITHUB_STEP_SUMMARY
-          echo "**Namespace:** ${{ env.NAMESPACE }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Image Tag:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Deployed By:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Pods" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          kubectl get pods -n ${{ env.NAMESPACE }} >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-
-      - name: Rollback on failure
-        if: failure()
-        run: |
-          echo "⚠️ Deployment failed, rolling back..."
-          helm rollback mykadoo -n ${{ env.NAMESPACE }}
-          kubectl rollout status deployment/mykadoo-web -n ${{ env.NAMESPACE }} --timeout=5m
-          kubectl rollout status deployment/mykadoo-api -n ${{ env.NAMESPACE }} --timeout=5m
-          echo "✅ Rollback completed"
-
-      - name: Notify deployment status
-        if: always()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const status = '${{ job.status }}';
-            const emoji = status === 'success' ? '✅' : '❌';
-            const message = `${emoji} **Staging Deployment ${status}**\n\n` +
-              `**Commit:** ${context.sha.substring(0, 7)}\n` +
-              `**Author:** ${context.actor}\n` +
-              `**URL:** https://staging.mykadoo.com`;
-
-            github.rest.repos.createCommitComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              commit_sha: context.sha,
-              body: message
-            });
+          curl -f https://staging.mykadoo.com/api/health || exit 1
+          curl -f https://staging.mykadoo.com || exit 1

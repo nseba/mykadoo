@@ -65,7 +65,9 @@
       "Bash(timeout 30 yarn storybook:*)",
       "Bash(yarn nx show:*)",
       "Bash(test:*)",
-      "Bash(yarn prisma generate:*)"
+      "Bash(yarn prisma generate:*)",
+      "Bash(docker:*)",
+      "Bash(docker-compose:*)"
     ],
     "deny": [],
     "ask": []
