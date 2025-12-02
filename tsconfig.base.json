@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@mykadoo/ai": ["libs/ai/src/index.ts"],
       "@mykadoo/design-system": ["libs/ui/design-system/src/index.ts"]
     }
   },
