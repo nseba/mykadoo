@@ -1,0 +1,158 @@
+# Prometheus Alerting Rules
+# Configure alerts for critical system conditions
+
+groups:
+  - name: application_alerts
+    interval: 30s
+    rules:
+      # High error rate
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total[5m]))
+          ) > 0.02
+        for: 5m
+        labels:
+          severity: critical
+          component: api
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 2%)"
+
+      # API latency
+      - alert: HighAPILatency
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (le, route)
+          ) > 1
+        for: 10m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "High API latency on {{ $labels.route }}"
+          description: "95th percentile latency is {{ $value }}s (threshold: 1s)"
+
+      # Database connection issues
+      - alert: DatabaseConnectionFailure
+        expr: database_health == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "Database connection failure"
+          description: "Cannot connect to database"
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: |
+          (
+            process_resident_memory_bytes
+            /
+            (container_spec_memory_limit_bytes > 0)
+          ) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: pod
+        annotations:
+          summary: "High memory usage in {{ $labels.pod }}"
+          description: "Memory usage is {{ $value | humanizePercentage }} (threshold: 90%)"
+
+      # Pod restarts
+      - alert: FrequentPodRestarts
+        expr: |
+          rate(kube_pod_container_status_restarts_total[15m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          component: kubernetes
+        annotations:
+          summary: "Pod {{ $labels.pod }} is restarting frequently"
+          description: "Pod has restarted {{ $value }} times in the last 15 minutes"
+
+      # Certificate expiration
+      - alert: SSLCertificateExpiring
+        expr: |
+          (ssl_certificate_expiry_seconds - time()) / 86400 < 30
+        for: 1h
+        labels:
+          severity: warning
+          component: ingress
+        annotations:
+          summary: "SSL certificate expiring soon"
+          description: "Certificate for {{ $labels.domain }} expires in {{ $value }} days"
+
+  - name: business_metrics_alerts
+    interval: 60s
+    rules:
+      # Low conversion rate
+      - alert: LowConversionRate
+        expr: |
+          (
+            sum(rate(affiliate_clicks_total[1h]))
+            /
+            sum(rate(searches_total[1h]))
+          ) < 0.05
+        for: 30m
+        labels:
+          severity: warning
+          component: business
+        annotations:
+          summary: "Low affiliate conversion rate"
+          description: "Conversion rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+
+      # High AI costs
+      - alert: HighAICosts
+        expr: |
+          sum(rate(ai_cost_usd[1h])) * 24 * 30 > 1000
+        for: 1h
+        labels:
+          severity: warning
+          component: ai
+        annotations:
+          summary: "High AI costs detected"
+          description: "Projected monthly cost is ${{ $value }} (threshold: $1000)"
+
+  - name: infrastructure_alerts
+    interval: 30s
+    rules:
+      # Node disk pressure
+      - alert: NodeDiskPressure
+        expr: |
+          kube_node_status_condition{condition="DiskPressure",status="true"} == 1
+        for: 5m
+        labels:
+          severity: critical
+          component: kubernetes
+        annotations:
+          summary: "Node {{ $labels.node }} under disk pressure"
+          description: "Node is running out of disk space"
+
+      # Node memory pressure
+      - alert: NodeMemoryPressure
+        expr: |
+          kube_node_status_condition{condition="MemoryPressure",status="true"} == 1
+        for: 5m
+        labels:
+          severity: critical
+          component: kubernetes
+        annotations:
+          summary: "Node {{ $labels.node }} under memory pressure"
+          description: "Node is running out of memory"
+
+      # Deployment replicas mismatch
+      - alert: DeploymentReplicasMismatch
+        expr: |
+          kube_deployment_spec_replicas !=
+          kube_deployment_status_replicas_available
+        for: 15m
+        labels:
+          severity: warning
+          component: kubernetes
+        annotations:
+          summary: "Deployment {{ $labels.deployment }} has mismatched replicas"
+          description: "Expected {{ $labels.spec_replicas }} replicas, but {{ $labels.available_replicas }} are available"

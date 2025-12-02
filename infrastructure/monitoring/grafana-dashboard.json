@@ -1,0 +1,225 @@
+{
+  "dashboard": {
+    "title": "Mykadoo Application Metrics",
+    "tags": ["mykadoo", "application", "monitoring"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Request Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total[5m])) by (status)",
+            "legendFormat": "Status {{ status }}"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "reqps",
+            "label": "Requests/sec"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Response Time (p50, p95, p99)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+            "legendFormat": "p50"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+            "legendFormat": "p95"
+          },
+          {
+            "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+            "legendFormat": "p99"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "s",
+            "label": "Duration"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Error Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) / sum(rate(http_requests_total[5m]))",
+            "legendFormat": "Error Rate"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "percentunit",
+            "label": "Error Rate"
+          }
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [0.02],
+                "type": "gt"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": 4,
+        "title": "Memory Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "process_resident_memory_bytes",
+            "legendFormat": "{{ pod }}"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "bytes",
+            "label": "Memory"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Database Response Time",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "database_response_time_ms",
+            "legendFormat": "{{ instance }}"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "ms",
+            "label": "Response Time"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Active Database Connections",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "pg_stat_database_numbackends{datname=\"mykadoo\"}"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "AI Model Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(rate(ai_requests_total[5m])) by (model)",
+            "legendFormat": "{{ model }}"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "reqps",
+            "label": "Requests/sec"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "AI Cost per Hour",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(rate(ai_cost_usd[1h])) * 3600",
+            "legendFormat": "Cost/hour"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "currencyUSD",
+            "label": "Cost"
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Search Conversion Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(rate(affiliate_clicks_total[5m])) / sum(rate(searches_total[5m]))",
+            "legendFormat": "Conversion Rate"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "percentunit",
+            "label": "Conversion"
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Pod Status",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "kube_pod_status_phase{namespace=\"mykadoo\"}",
+            "format": "table"
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Top Slow Endpoints",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(10, histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, route)))",
+            "format": "table"
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Uptime",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "process_uptime_seconds"
+          }
+        ],
+        "format": "s"
+      }
+    ],
+    "templating": {
+      "list": [
+        {
+          "name": "environment",
+          "type": "query",
+          "query": "label_values(http_requests_total, environment)"
+        },
+        {
+          "name": "pod",
+          "type": "query",
+          "query": "label_values(http_requests_total{environment=\"$environment\"}, pod)"
+        }
+      ]
+    },
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+}
