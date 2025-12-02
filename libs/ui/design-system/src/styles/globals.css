@@ -402,7 +402,7 @@
 
   /* Gradient text */
   .gradient-text {
-    @apply bg-gradient-to-r from-primary-300 to-secondary-500;
+    background-image: linear-gradient(to right, #FFB3B3, #339AF0);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

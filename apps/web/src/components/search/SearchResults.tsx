@@ -10,6 +10,7 @@ import { GiftCard, type GiftRecommendation } from './GiftCard';
 
 interface SearchResultsProps {
   recommendations: GiftRecommendation[];
+  searchId: string;
   metadata?: {
     model: string;
     cost: number;
@@ -19,7 +20,7 @@ interface SearchResultsProps {
   onSave?: (gift: GiftRecommendation) => void;
 }
 
-export function SearchResults({ recommendations, metadata, onSave }: SearchResultsProps) {
+export function SearchResults({ recommendations, searchId, metadata, onSave }: SearchResultsProps) {
   if (recommendations.length === 0) {
     return (
       <div className="text-center py-12">
@@ -53,7 +54,12 @@ export function SearchResults({ recommendations, metadata, onSave }: SearchResul
       {/* Results Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {recommendations.map((gift, index) => (
-          <GiftCard key={`${gift.productName}-${index}`} gift={gift} onSave={onSave} />
+          <GiftCard
+            key={`${gift.productName}-${index}`}
+            gift={gift}
+            searchId={searchId}
+            onSave={onSave}
+          />
         ))}
       </div>
     </div>

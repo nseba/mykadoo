@@ -45,6 +45,9 @@ model User {
   // Subscription
   subscription  Subscription?
 
+  // Feedback
+  feedback      UserFeedback[]
+
   // Password reset tokens
   passwordResetTokens PasswordResetToken[]
 
@@ -410,6 +413,70 @@ model Favorite {
   @@index([userId])
   @@index([productId])
   @@map("favorites")
+}
+
+// =============================================================================
+// USER FEEDBACK & LEARNING
+// =============================================================================
+
+model UserFeedback {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id") // Nullable for anonymous feedback
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  searchId  String   @map("search_id")
+  productId String   @map("product_id")
+
+  // Feedback type
+  action    FeedbackAction
+  rating    Int? // 1-5 stars
+
+  // Context
+  occasion       String?
+  relationship   String?
+  recipientAge   String? @map("recipient_age")
+  searchContext  Json?   @map("search_context") // Original search parameters
+
+  // Notes
+  comment   String?  @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([searchId])
+  @@index([productId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("user_feedback")
+}
+
+enum FeedbackAction {
+  VIEWED      // User clicked to view product
+  SAVED       // Added to wishlist
+  PURCHASED   // Marked as purchased
+  DISMISSED   // Explicitly dismissed
+  LIKED       // Positive reaction
+  DISLIKED    // Negative reaction
+  CLICKED     // Clicked affiliate link
+}
+
+model RecommendationImprovement {
+  id        String   @id @default(uuid())
+
+  // What was learned
+  pattern   String   // e.g., "Users who like X also like Y"
+  confidence Float   // 0-1 confidence score
+  usageCount Int     @default(0) @map("usage_count") // How many times applied
+
+  // Pattern details
+  metadata  Json? // Store pattern parameters
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([confidence])
+  @@index([usageCount])
+  @@map("recommendation_improvements")
 }
 
 // =============================================================================

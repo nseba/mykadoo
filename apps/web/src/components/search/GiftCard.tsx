@@ -3,8 +3,10 @@
 /**
  * Gift Card Component
  *
- * Display individual gift recommendation
+ * Display individual gift recommendation with feedback options
  */
+
+import { FeedbackButtons, RatingStars } from '../feedback';
 
 export interface GiftRecommendation {
   productName: string;
@@ -22,10 +24,11 @@ export interface GiftRecommendation {
 
 interface GiftCardProps {
   gift: GiftRecommendation;
+  searchId: string;
   onSave?: (gift: GiftRecommendation) => void;
 }
 
-export function GiftCard({ gift, onSave }: GiftCardProps) {
+export function GiftCard({ gift, searchId, onSave }: GiftCardProps) {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       {/* Image Placeholder */}
@@ -91,7 +94,7 @@ export function GiftCard({ gift, onSave }: GiftCardProps) {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 mb-3">
           {gift.purchaseUrl && (
             <a
               href={gift.purchaseUrl}
@@ -111,6 +114,23 @@ export function GiftCard({ gift, onSave }: GiftCardProps) {
               Save
             </button>
           )}
+        </div>
+
+        {/* Feedback Section */}
+        <div className="border-t border-gray-200 pt-3">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs text-gray-600 font-medium">Rate this gift:</span>
+            <RatingStars
+              productId={gift.productName}
+              searchId={searchId}
+              size="sm"
+            />
+          </div>
+          <FeedbackButtons
+            productId={gift.productName}
+            searchId={searchId}
+            className="justify-center"
+          />
         </div>
 
         {/* Retailer */}

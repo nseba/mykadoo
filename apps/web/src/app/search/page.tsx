@@ -109,6 +109,7 @@ export default function SearchPage() {
             {results && !loading && !error && (
               <SearchResults
                 recommendations={results.recommendations}
+                searchId={results.searchId || 'unknown'}
                 metadata={results.metadata}
                 onSave={handleSaveGift}
               />
