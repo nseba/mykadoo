@@ -39,6 +39,9 @@ model User {
   wishlists     Wishlist[]
   favorites     Favorite[]
 
+  // Recipient profiles
+  recipientProfiles RecipientProfile[]
+
   // Subscription
   subscription  Subscription?
 
@@ -301,6 +304,52 @@ model Product {
   @@index([isActive])
   @@index([createdAt])
   @@map("products")
+}
+
+// =============================================================================
+// RECIPIENT PROFILES
+// =============================================================================
+
+model RecipientProfile {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Basic info
+  name          String
+  relationship  String // Friend, Spouse, Parent, Sibling, etc.
+  ageRange      String   @map("age_range") // Child, Teen, Young Adult, Adult, Senior
+  gender        String?
+  dateOfBirth   DateTime? @map("date_of_birth")
+
+  // Preferences
+  interests     String[] // Array of interest tags
+  favoriteColors String[] @map("favorite_colors")
+  hobbies       String[]
+  dislikes      String[]
+
+  // Occasions
+  birthdayDate      DateTime? @map("birthday_date")
+  anniversaryDate   DateTime? @map("anniversary_date")
+  occasionReminders Json? @map("occasion_reminders") // Custom occasions with dates
+
+  // Gift history
+  giftHistory   Json[] @map("gift_history") // Track gifts given: {date, product, occasion, liked}
+
+  // Notes
+  notes         String?  @db.Text
+  avatar        String? // URL to profile picture
+
+  // Tracking
+  lastGiftDate  DateTime? @map("last_gift_date")
+  totalGiftsGiven Int @default(0) @map("total_gifts_given")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([name])
+  @@map("recipient_profiles")
 }
 
 // =============================================================================
