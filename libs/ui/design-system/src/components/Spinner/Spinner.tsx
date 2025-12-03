@@ -69,7 +69,7 @@ export const Spinner = React.forwardRef<HTMLDivElement, SpinnerProps>(
           className={cn(
             'animate-spin rounded-full border-solid border-t-transparent',
             sizeMap[size],
-            variant === 'primary' && 'border-primary-300',
+            variant === 'primary' && 'border-primary-500',
             variant === 'secondary' && 'border-secondary-500',
             variant === 'neutral' && 'border-neutral-400',
             variant === 'white' && 'border-white'

@@ -98,7 +98,7 @@ export const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
           <div
             className={cn(
               'h-full rounded-full transition-all duration-300 ease-in-out',
-              variant === 'primary' && 'bg-primary-300',
+              variant === 'primary' && 'bg-primary-500',
               variant === 'secondary' && 'bg-secondary-500',
               variant === 'success' && 'bg-success-500',
               variant === 'warning' && 'bg-warning-500',
