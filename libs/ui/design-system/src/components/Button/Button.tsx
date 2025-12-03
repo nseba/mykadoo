@@ -4,16 +4,17 @@ import { type VariantProps } from 'class-variance-authority';
 import { cn } from '../../utils';
 
 /**
- * Button variants configuration using class-variance-authority pattern
+ * Button variants configuration
+ * Uses design tokens from the Mykadoo design system
  */
 const buttonVariants = {
   variant: {
-    primary: 'bg-primary-300 text-white hover:bg-primary-400 active:bg-primary-500 focus:ring-primary-300',
+    primary: 'bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 focus:ring-primary-500',
     secondary: 'bg-secondary-500 text-white hover:bg-secondary-600 active:bg-secondary-700 focus:ring-secondary-500',
     tertiary: 'bg-neutral-100 text-neutral-900 hover:bg-neutral-200 active:bg-neutral-300 focus:ring-neutral-300',
     outline: 'bg-transparent border-2 border-neutral-300 text-neutral-700 hover:bg-neutral-50 active:bg-neutral-100 focus:ring-neutral-300',
     ghost: 'bg-transparent text-neutral-700 hover:bg-neutral-100 active:bg-neutral-200 focus:ring-neutral-300',
-    danger: 'bg-error-500 text-white hover:bg-error-600 active:bg-error-700 focus:ring-error-500',
+    danger: 'bg-error-500 text-white hover:bg-error-700 active:bg-error-900 focus:ring-error-500',
   },
   size: {
     sm: 'px-3 py-1.5 text-sm',
