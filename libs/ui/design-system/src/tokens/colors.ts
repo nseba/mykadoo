@@ -4,102 +4,82 @@
  * Brand personality: Warm, friendly, trustworthy
  * Primary: Warm coral #FF6B6B (inviting, friendly)
  * Secondary: Trustworthy blue #339AF0
+ *
+ * Color scales follow industry standard 50-900 convention where:
+ * - 50 is the lightest tint
+ * - 500 is the main brand color
+ * - 900 is the darkest shade
  */
 
 export const colors = {
-  // Primary palette - Warm Coral
-  primary: {
-    50: '#FFE5E5',
-    100: '#FFCCCC',
-    200: '#FF9999',
-    300: '#FF6B6B', // Main brand color
-    400: '#FF4D4D',
-    500: '#FF3333',
-    600: '#FF1A1A',
-    700: '#E60000',
-    800: '#CC0000',
-    900: '#990000',
+  // Brand Colors
+  brand: {
+    primary: {
+      50: '#FFF5F5',  // Lightest - backgrounds
+      100: '#FFE3E3',
+      200: '#FFC9C9',
+      300: '#FFA8A8',
+      400: '#FF8787',
+      500: '#FF6B6B',  // Main brand color - warm coral
+      600: '#FA5252',
+      700: '#F03E3E',
+      800: '#E03131',
+      900: '#C92A2A',  // Darkest - text on light
+    },
+    secondary: {
+      50: '#E7F5FF',  // Lightest - backgrounds
+      100: '#D0EBFF',
+      200: '#A5D8FF',
+      300: '#74C0FC',
+      400: '#4DABF7',
+      500: '#339AF0',  // Main secondary color - trustworthy blue
+      600: '#228BE6',
+      700: '#1C7ED6',
+      800: '#1971C2',
+      900: '#1864AB',  // Darkest - text on light
+    },
   },
 
-  // Secondary palette - Trustworthy Blue
-  secondary: {
-    50: '#E3F2FD',
-    100: '#BBDEFB',
-    200: '#90CAF9',
-    300: '#64B5F6',
-    400: '#42A5F5',
-    500: '#339AF0', // Main secondary color
-    600: '#1E88E5',
-    700: '#1976D2',
-    800: '#1565C0',
-    900: '#0D47A1',
-  },
-
-  // Neutral palette - Grays
+  // Neutral Colors
   neutral: {
-    50: '#FAFAFA',
-    100: '#F5F5F5',
-    200: '#EEEEEE',
-    300: '#E0E0E0',
-    400: '#BDBDBD',
-    500: '#9E9E9E',
-    600: '#757575',
-    700: '#616161',
-    800: '#424242',
-    900: '#212121',
+    50: '#F8F9FA',  // Page background
+    100: '#F1F3F5',  // Card background
+    200: '#E9ECEF',  // Dividers
+    300: '#DEE2E6',  // Borders
+    400: '#CED4DA',  // Disabled states
+    500: '#ADB5BD',  // Placeholder text
+    600: '#868E96',  // Secondary text
+    700: '#495057',  // Body text
+    800: '#343A40',  // Headings
+    900: '#212529',  // High emphasis text
   },
 
-  // Semantic colors
-  success: {
-    50: '#E8F5E9',
-    100: '#C8E6C9',
-    200: '#A5D6A7',
-    300: '#81C784',
-    400: '#66BB6A',
-    500: '#4CAF50', // Main success color
-    600: '#43A047',
-    700: '#388E3C',
-    800: '#2E7D32',
-    900: '#1B5E20',
-  },
-
-  warning: {
-    50: '#FFF3E0',
-    100: '#FFE0B2',
-    200: '#FFCC80',
-    300: '#FFB74D',
-    400: '#FFA726',
-    500: '#FF9800', // Main warning color
-    600: '#FB8C00',
-    700: '#F57C00',
-    800: '#EF6C00',
-    900: '#E65100',
-  },
-
-  error: {
-    50: '#FFEBEE',
-    100: '#FFCDD2',
-    200: '#EF9A9A',
-    300: '#E57373',
-    400: '#EF5350',
-    500: '#F44336', // Main error color
-    600: '#E53935',
-    700: '#D32F2F',
-    800: '#C62828',
-    900: '#B71C1C',
-  },
-
-  info: {
-    50: '#E3F2FD',
-    100: '#BBDEFB',
-    200: '#90CAF9',
-    300: '#64B5F6',
-    400: '#42A5F5',
-    500: '#2196F3', // Main info color
-    600: '#1E88E5',
-    700: '#1976D2',
-    800: '#1565C0',
-    900: '#0D47A1',
+  // Semantic Colors
+  semantic: {
+    success: {
+      50: '#EBFBEE',
+      500: '#51CF66',  // Success states
+      700: '#2F9E44',  // Success dark
+      900: '#2B8A3E',
+    },
+    warning: {
+      50: '#FFF9DB',
+      500: '#FFD43B',  // Warning states
+      700: '#FAB005',  // Warning dark
+      900: '#F08C00',
+    },
+    error: {
+      50: '#FFF5F5',
+      500: '#FF6B6B',  // Error states (same as primary)
+      700: '#F03E3E',  // Error dark
+      900: '#C92A2A',
+    },
+    info: {
+      50: '#E7F5FF',
+      500: '#339AF0',  // Info states (same as secondary)
+      700: '#1C7ED6',  // Info dark
+      900: '#1864AB',
+    },
   },
 
   // Special colors
@@ -109,23 +89,23 @@ export const colors = {
   // Background colors
   background: {
     default: '#FFFFFF',
-    paper: '#FAFAFA',
-    elevated: '#F5F5F5',
+    paper: '#F8F9FA',
+    elevated: '#F1F3F5',
   },
 
-  // Text colors
+  // Text colors (derived from neutral scale)
   text: {
-    primary: '#212121',
-    secondary: '#616161',
-    disabled: '#9E9E9E',
-    hint: '#BDBDBD',
+    primary: '#212529',    // neutral-900
+    secondary: '#495057',  // neutral-700
+    disabled: '#ADB5BD',   // neutral-500
+    hint: '#868E96',       // neutral-600
   },
 
-  // Border colors
+  // Border colors (derived from neutral scale)
   border: {
-    default: '#E0E0E0',
-    light: '#EEEEEE',
-    dark: '#BDBDBD',
+    default: '#DEE2E6',  // neutral-300
+    light: '#E9ECEF',    // neutral-200
+    dark: '#CED4DA',     // neutral-400
   },
 
   // Overlay colors
@@ -133,6 +113,68 @@ export const colors = {
     light: 'rgba(255, 255, 255, 0.9)',
     dark: 'rgba(0, 0, 0, 0.5)',
   },
+} as const;
+
+/**
+ * Tailwind-compatible color export
+ * Maps our color system to Tailwind's naming convention
+ */
+export const tailwindColors = {
+  primary: colors.brand.primary,
+  secondary: colors.brand.secondary,
+  neutral: colors.neutral,
+  success: {
+    50: colors.semantic.success[50],
+    500: colors.semantic.success[500],
+    700: colors.semantic.success[700],
+    900: colors.semantic.success[900],
+  },
+  warning: {
+    50: colors.semantic.warning[50],
+    500: colors.semantic.warning[500],
+    700: colors.semantic.warning[700],
+    900: colors.semantic.warning[900],
+  },
+  error: {
+    50: colors.semantic.error[50],
+    500: colors.semantic.error[500],
+    700: colors.semantic.error[700],
+    900: colors.semantic.error[900],
+  },
+  info: {
+    50: colors.semantic.info[50],
+    500: colors.semantic.info[500],
+    700: colors.semantic.info[700],
+    900: colors.semantic.info[900],
+  },
+  white: colors.white,
+  black: colors.black,
+} as const;
+
+/**
+ * CSS custom properties for runtime theming
+ */
+export const cssColorVariables = {
+  // Primary
+  '--color-primary-50': colors.brand.primary[50],
+  '--color-primary-500': colors.brand.primary[500],
+  '--color-primary-900': colors.brand.primary[900],
+
+  // Secondary
+  '--color-secondary-50': colors.brand.secondary[50],
+  '--color-secondary-500': colors.brand.secondary[500],
+  '--color-secondary-900': colors.brand.secondary[900],
+
+  // Neutral
+  '--color-neutral-50': colors.neutral[50],
+  '--color-neutral-500': colors.neutral[500],
+  '--color-neutral-900': colors.neutral[900],
+
+  // Semantic
+  '--color-success': colors.semantic.success[500],
+  '--color-warning': colors.semantic.warning[500],
+  '--color-error': colors.semantic.error[500],
+  '--color-info': colors.semantic.info[500],
 } as const;
 
 export type ColorToken = typeof colors;
