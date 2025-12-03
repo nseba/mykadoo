@@ -70,7 +70,8 @@ export const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,
   CheckboxProps
 >(({ className, label, helperText, state = 'default', id, disabled, ...props }, ref) => {
-  const checkboxId = id || React.useId();
+  const generatedId = React.useId();
+  const checkboxId = id || generatedId;
   const helperTextId = helperText ? `${checkboxId}-helper` : undefined;
 
   return (

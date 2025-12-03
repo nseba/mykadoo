@@ -17,7 +17,7 @@ export interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> 
 }
 
 export const Table = React.forwardRef<HTMLTableElement, TableProps>(
-  ({ variant = 'default', hoverable = false, dense = false, className, ...props }, ref) => {
+  ({ variant = 'default', className, ...props }, ref) => {
     return (
       <div className="w-full overflow-auto">
         <table

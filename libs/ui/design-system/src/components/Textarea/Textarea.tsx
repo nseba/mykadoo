@@ -72,7 +72,8 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     },
     ref
   ) => {
-    const inputId = id || React.useId();
+    const generatedId = React.useId();
+    const inputId = id || generatedId;
     const helperTextId = helperText ? `${inputId}-helper` : undefined;
 
     // Track character count
