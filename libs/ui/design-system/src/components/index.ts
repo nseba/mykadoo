@@ -12,6 +12,12 @@ export * from './Input';
 export * from './Textarea';
 export * from './Checkbox';
 export * from './Radio';
+export * from './Select';
+export * from './Toggle';
+export * from './Slider';
+export * from './FileUpload';
+export * from './DatePicker';
+export * from './SearchBar';
 
 // Feedback
 export * from './Alert';
