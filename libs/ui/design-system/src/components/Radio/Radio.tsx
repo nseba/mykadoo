@@ -133,8 +133,8 @@ export const RadioGroup = React.forwardRef<
                   // Default state
                   state === 'default' && [
                     'border-neutral-300 bg-white',
-                    'data-[state=checked]:border-primary-300 data-[state=checked]:bg-primary-50',
-                    'focus:ring-primary-300',
+                    'data-[state=checked]:border-primary-500 data-[state=checked]:bg-primary-50',
+                    'focus:ring-primary-500',
                   ],
                   // Error state
                   state === 'error' && [
@@ -149,7 +149,7 @@ export const RadioGroup = React.forwardRef<
                 <RadioGroupPrimitive.Indicator
                   className={cn(
                     'h-2.5 w-2.5 rounded-full',
-                    state === 'default' && 'bg-primary-300',
+                    state === 'default' && 'bg-primary-500',
                     state === 'error' && 'bg-error-500'
                   )}
                 />

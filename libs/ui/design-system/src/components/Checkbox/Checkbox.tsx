@@ -86,8 +86,8 @@ export const Checkbox = React.forwardRef<
           // Default state
           state === 'default' && [
             'border-neutral-300 bg-white',
-            'data-[state=checked]:bg-primary-300 data-[state=checked]:border-primary-300',
-            'focus:ring-primary-300',
+            'data-[state=checked]:bg-primary-500 data-[state=checked]:border-primary-500',
+            'focus:ring-primary-500',
           ],
           // Error state
           state === 'error' && [

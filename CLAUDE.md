@@ -472,3 +472,4 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 4. Implement core gift search AI (PRD 0001)
 
 **Recommended Start:** Execute `tasks/tasks-0016-devops-cicd.md` first to establish infrastructure, then proceed with design system and MVP features in parallel.
+- Whenever a task is finished, it should be marked correspondignly in the file from @tasks/ . Also when a PRD is finished, it should be updated in the PRD file from the @tasks/

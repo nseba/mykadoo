@@ -116,7 +116,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               leftIcon && 'pl-10',
               rightIcon && 'pr-10',
               // State styles
-              state === 'default' && 'border-neutral-300 focus:ring-primary-300 focus:border-primary-300',
+              state === 'default' && 'border-neutral-300 focus:ring-primary-500 focus:border-primary-500',
               state === 'error' && 'border-error-500 focus:ring-error-500 focus:border-error-500',
               state === 'success' && 'border-success-500 focus:ring-success-500 focus:border-success-500',
               className

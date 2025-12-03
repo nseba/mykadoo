@@ -117,7 +117,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
             // Disabled state
             'disabled:bg-neutral-100 disabled:cursor-not-allowed disabled:text-neutral-400',
             // State styles
-            state === 'default' && 'border-neutral-300 focus:ring-primary-300 focus:border-primary-300',
+            state === 'default' && 'border-neutral-300 focus:ring-primary-500 focus:border-primary-500',
             state === 'error' && 'border-error-500 focus:ring-error-500 focus:border-error-500',
             state === 'success' && 'border-success-500 focus:ring-success-500 focus:border-success-500',
             className
