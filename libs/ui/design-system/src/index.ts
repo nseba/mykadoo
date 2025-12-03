@@ -7,8 +7,8 @@ export * from './utils';
 // Hooks
 export * from './hooks';
 
-// Styles
-import './styles/globals.css';
-
 // Components
 export * from './components';
+
+// Note: Styles are not imported in library build
+// Consumers should import './styles/globals.css' directly or use Tailwind with design tokens
