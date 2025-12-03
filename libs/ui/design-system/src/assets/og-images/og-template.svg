@@ -1,0 +1,48 @@
+<!-- Mykadoo Open Graph Image Template (1200x630px) -->
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFF5F5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E7F5FF;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+
+  <!-- Decorative Pattern -->
+  <circle cx="100" cy="100" r="60" fill="#FFE3E3" opacity="0.3"/>
+  <circle cx="1100" cy="530" r="80" fill="#D0EBFF" opacity="0.3"/>
+  <circle cx="900" cy="120" r="40" fill="#FFC9C9" opacity="0.2"/>
+
+  <!-- Logo (Large) -->
+  <g transform="translate(100, 150)">
+    <!-- Gift Icon -->
+    <rect x="0" y="40" width="80" height="60" rx="4" fill="#FF6B6B"/>
+    <rect x="34" y="40" width="12" height="60" fill="#339AF0"/>
+    <rect x="0" y="64" width="80" height="12" fill="#339AF0"/>
+    <rect x="-4" y="34" width="88" height="14" rx="2" fill="#FA5252"/>
+    <circle cx="40" cy="30" r="8" fill="#FA5252"/>
+    <path d="M24 34C24 34 16 26 12 28C8 30 16 34 24 34Z" fill="#FF6B6B"/>
+    <path d="M56 34C56 34 64 26 68 28C72 30 64 34 56 34Z" fill="#FF6B6B"/>
+  </g>
+
+  <!-- Main Text -->
+  <text x="220" y="220" font-family="Inter, sans-serif" font-size="72" font-weight="700" fill="#343A40">
+    Mykadoo
+  </text>
+
+  <!-- Tagline -->
+  <text x="220" y="280" font-family="Inter, sans-serif" font-size="36" font-weight="400" fill="#495057">
+    Find the Perfect Gift
+  </text>
+
+  <!-- Description -->
+  <text x="220" y="340" font-family="Inter, sans-serif" font-size="24" font-weight="400" fill="#868E96">
+    AI-powered gift search engine with personalized recommendations
+  </text>
+
+  <!-- Bottom URL -->
+  <text x="100" y="560" font-family="Inter, sans-serif" font-size="20" font-weight="500" fill="#339AF0">
+    mykadoo.com
+  </text>
+</svg>

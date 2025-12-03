@@ -1,4 +1,11 @@
+<!-- Mykadoo Favicon - SVG (scalable) -->
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Simplified heart icon for favicon -->
-  <path d="M16 8C16 8 11 4 8 7C5 10 5 13 8 16L16 24L24 16C27 13 27 10 24 7C21 4 16 8 16 8Z" fill="#FF6B6B"/>
+  <!-- Simplified gift icon for small sizes -->
+  <rect x="6" y="14" width="20" height="14" rx="1" fill="#FF6B6B"/>
+  <rect x="4" y="12" width="24" height="3" rx="0.5" fill="#FA5252"/>
+  <rect x="14" y="14" width="4" height="14" fill="#339AF0"/>
+  <rect x="6" y="19" width="20" height="3" fill="#339AF0"/>
+  <circle cx="16" cy="10" r="2" fill="#FA5252"/>
+  <path d="M11 12C11 12 9 10 8 11C7 12 9 13 11 12Z" fill="#FF6B6B"/>
+  <path d="M21 12C21 12 23 10 24 11C25 12 23 13 21 12Z" fill="#FF6B6B"/>
 </svg>

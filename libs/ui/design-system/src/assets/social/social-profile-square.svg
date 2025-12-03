@@ -1,0 +1,22 @@
+<!-- Mykadoo Social Media Profile Image - Square (400x400px) -->
+<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="400" fill="#FF6B6B"/>
+
+  <!-- Gift Icon (Centered, Large, White) -->
+  <g transform="translate(125, 125)" fill="#FFFFFF">
+    <rect x="0" y="40" width="150" height="110" rx="6" />
+    <rect x="-10" y="30" width="170" height="20" rx="3" fill="#FFF5F5"/>
+    <rect x="68" y="40" width="14" height="110" fill="#FFF5F5"/>
+    <rect x="0" y="87" width="150" height="16" fill="#FFF5F5"/>
+    <circle cx="75" cy="20" r="12"/>
+    <path d="M48 30C48 30 32 20 24 24C16 28 32 34 48 30Z"/>
+    <path d="M102 30C102 30 118 20 126 24C134 28 118 34 102 30Z"/>
+  </g>
+
+  <!-- Sparkles -->
+  <circle cx="80" cy="80" r="6" fill="#FFFFFF" opacity="0.6"/>
+  <circle cx="320" cy="100" r="4" fill="#FFFFFF" opacity="0.6"/>
+  <circle cx="100" cy="320" r="5" fill="#FFFFFF" opacity="0.6"/>
+  <circle cx="300" cy="300" r="4" fill="#FFFFFF" opacity="0.6"/>
+</svg>
