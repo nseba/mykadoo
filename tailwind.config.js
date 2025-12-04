@@ -6,10 +6,11 @@ module.exports = {
   content: [
     join(
       __dirname,
-      '{src,pages,components,app}/**/*!(*.stories|*.spec).{ts,tsx,html}'
+      '{src,pages,components,app}/**/*!(*.spec).{ts,tsx,html}'
     ),
-    join(__dirname, 'apps/web/src/**/*!(*.stories|*.spec).{ts,tsx,html}'),
-    join(__dirname, 'libs/ui/design-system/src/**/*!(*.stories|*.spec).{ts,tsx,html}'),
+    join(__dirname, 'apps/web/src/**/*!(*.spec).{ts,tsx,html}'),
+    join(__dirname, 'libs/ui/design-system/src/**/*!(*.spec).{ts,tsx,html}'),
+    join(__dirname, 'libs/ui/design-system/src/**/*.stories.{ts,tsx}'),
     ...createGlobPatternsForDependencies(__dirname),
   ],
   theme: {
