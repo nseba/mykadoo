@@ -53,6 +53,7 @@
     "lucide-react": "^0.555.0",
     "next": "~14.2.26",
     "openai": "^6.9.1",
+    "paapi5-nodejs-sdk": "^1.1.0",
     "passport": "^0.7.0",
     "passport-facebook": "^3.0.0",
     "passport-google-oauth20": "^2.0.0",
