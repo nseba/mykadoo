@@ -10,9 +10,10 @@ import { AffiliateModule } from './affiliate/affiliate.module';
 import { ProductsModule } from './products/products.module';
 import { TrackingModule } from './tracking/tracking.module';
 import { SyncModule } from './sync/sync.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
-  imports: [SearchModule, ProfilesModule, FeedbackModule, PerformanceModule, AffiliateModule, ProductsModule, TrackingModule, SyncModule],
+  imports: [SearchModule, ProfilesModule, FeedbackModule, PerformanceModule, AffiliateModule, ProductsModule, TrackingModule, SyncModule, AnalyticsModule],
   controllers: [AppController, HealthController],
   providers: [AppService],
 })
