@@ -519,8 +519,36 @@ model RecommendationImprovement {
 // ANALYTICS & TRACKING
 // =============================================================================
 
+model AffiliateLink {
+  id        String   @id @default(uuid())
+
+  productId String   @map("product_id")
+  userId    String?  @map("user_id") // Nullable for anonymous users
+  searchId  String?  @map("search_id") // Related search session
+
+  url          String   @db.Text // Full affiliate URL
+  trackingId   String   @map("tracking_id") // Internal tracking ID
+  platform     AffiliatePlatform
+  campaignId   String?  @map("campaign_id") // Optional campaign tracking
+
+  clicks       AffiliateClick[]
+
+  createdAt    DateTime @default(now()) @map("created_at")
+  expiresAt    DateTime? @map("expires_at") // Optional expiry
+
+  @@index([productId])
+  @@index([userId])
+  @@index([trackingId])
+  @@index([platform])
+  @@index([createdAt])
+  @@map("affiliate_links")
+}
+
 model AffiliateClick {
   id        String   @id @default(uuid())
+
+  linkId    String   @map("link_id") // Reference to AffiliateLink
+  link      AffiliateLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
 
   productId String   @map("product_id")
   userId    String?  @map("user_id") // Nullable for anonymous clicks
@@ -538,6 +566,7 @@ model AffiliateClick {
 
   createdAt DateTime @default(now()) @map("created_at")
 
+  @@index([linkId])
   @@index([productId])
   @@index([userId])
   @@index([converted])

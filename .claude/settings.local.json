@@ -8,7 +8,19 @@
       "Bash(cat:*)",
       "Bash(test:*)",
       "Bash(yarn add:*)",
-      "Bash(yarn nx lint:*)"
+      "Bash(yarn nx lint:*)",
+      "Bash(yarn nx storybook:*)",
+      "Bash(yarn storybook:*)",
+      "Bash(git add:*)",
+      "Bash(git reset:*)",
+      "Bash(pkill:*)",
+      "Bash(yarn remove:*)",
+      "Bash(curl:*)",
+      "Bash(yarn nx build:*)",
+      "Bash(for dir in Card Modal Tooltip Popover Accordion Table Badge Avatar)",
+      "Bash(do echo '=== $dir ===' ls libs/ui/design-system/src/components/$dir/)",
+      "Bash(npx tsc:*)",
+      "Bash(npx prisma generate)"
     ],
     "deny": [],
     "ask": []
