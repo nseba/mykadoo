@@ -17,6 +17,9 @@ interface HealthStatus {
     redis?: HealthCheck;
     memory?: HealthCheck;
     disk?: HealthCheck;
+    amazon?: HealthCheck;
+    shareasale?: HealthCheck;
+    cj?: HealthCheck;
   };
 }
 
@@ -133,13 +136,94 @@ export class HealthService {
    * Perform all health checks
    */
   private async performHealthChecks() {
-    const [database, redis, memory] = await Promise.all([
+    const [database, redis, memory, amazon, shareasale, cj] = await Promise.all([
       this.checkDatabase(),
       this.checkRedis(),
       Promise.resolve(this.checkMemory()),
+      this.checkAmazonAPI(),
+      this.checkShareASaleAPI(),
+      this.checkCJAPI(),
     ]);
 
-    return { database, redis, memory };
+    return { database, redis, memory, amazon, shareasale, cj };
+  }
+
+  /**
+   * Check Amazon PA-API health
+   */
+  private async checkAmazonAPI(): Promise<HealthCheck> {
+    try {
+      // Check if credentials are configured
+      if (!process.env.AMAZON_ACCESS_KEY || !process.env.AMAZON_SECRET_KEY) {
+        return {
+          status: 'warn',
+          message: 'Amazon API credentials not configured',
+        };
+      }
+
+      return {
+        status: 'pass',
+        message: 'Amazon API credentials configured',
+      };
+    } catch (error) {
+      this.logger.error('Amazon API health check failed', error);
+      return {
+        status: 'fail',
+        message: error.message,
+      };
+    }
+  }
+
+  /**
+   * Check ShareASale API health
+   */
+  private async checkShareASaleAPI(): Promise<HealthCheck> {
+    try {
+      // Check if credentials are configured
+      if (!process.env.SHAREASALE_AFFILIATE_ID || !process.env.SHAREASALE_API_TOKEN) {
+        return {
+          status: 'warn',
+          message: 'ShareASale API credentials not configured',
+        };
+      }
+
+      return {
+        status: 'pass',
+        message: 'ShareASale API credentials configured',
+      };
+    } catch (error) {
+      this.logger.error('ShareASale API health check failed', error);
+      return {
+        status: 'fail',
+        message: error.message,
+      };
+    }
+  }
+
+  /**
+   * Check CJ Affiliate API health
+   */
+  private async checkCJAPI(): Promise<HealthCheck> {
+    try {
+      // Check if credentials are configured
+      if (!process.env.CJ_PUBLISHER_ID || !process.env.CJ_API_TOKEN) {
+        return {
+          status: 'warn',
+          message: 'CJ API credentials not configured',
+        };
+      }
+
+      return {
+        status: 'pass',
+        message: 'CJ API credentials configured',
+      };
+    } catch (error) {
+      this.logger.error('CJ API health check failed', error);
+      return {
+        status: 'fail',
+        message: error.message,
+      };
+    }
   }
 
   /**
