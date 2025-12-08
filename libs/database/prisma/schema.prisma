@@ -266,18 +266,35 @@ model Product {
   id          String   @id @default(uuid())
 
   // Product details
-  title       String
-  description String?  @db.Text
-  imageUrl    String?  @map("image_url")
-  price       Float
-  currency    String   @default("USD")
-  rating      Float?
-  reviewCount Int?     @map("review_count")
+  title            String
+  description      String?  @db.Text
+  shortDescription String?  @map("short_description") @db.Text
+
+  // Images
+  imageUrl      String?  @map("image_url")
+  galleryImages String[] @map("gallery_images") // Array of image URLs
+
+  // Pricing
+  price         Float
+  salePrice     Float?   @map("sale_price") // If on sale, original price in 'price'
+  currency      String   @default("USD")
+
+  // Reviews & Ratings
+  rating        Float?
+  reviewCount   Int?     @map("review_count")
 
   // Affiliate info
-  affiliateNetwork  String   @map("affiliate_network") // Amazon, ShareASale, CJ
-  externalId        String   @map("external_id") // ASIN, merchant product ID
-  affiliateLink     String   @map("affiliate_link") @db.Text
+  platform      AffiliatePlatform  // Amazon, ShareASale, CJ, Rakuten
+  externalId    String   @map("external_id") // ASIN, SKU, merchant product ID
+  affiliateLink String   @map("affiliate_link") @db.Text
+
+  // Retailer info
+  retailerName  String?  @map("retailer_name")
+  retailerUrl   String?  @map("retailer_url") @db.Text
+  brand         String?
+
+  // Availability
+  availability  ProductAvailability @default(UNKNOWN)
 
   // Categorization
   category    String?
@@ -302,11 +319,30 @@ model Product {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@unique([affiliateNetwork, externalId])
+  @@unique([platform, externalId])
   @@index([category])
+  @@index([platform])
+  @@index([availability])
+  @@index([price])
+  @@index([rating])
   @@index([isActive])
   @@index([createdAt])
   @@map("products")
+}
+
+enum AffiliatePlatform {
+  AMAZON
+  SHAREASALE
+  CJ
+  RAKUTEN
+  IMPACT
+}
+
+enum ProductAvailability {
+  IN_STOCK
+  OUT_OF_STOCK
+  UNKNOWN
+  DISCONTINUED
 }
 
 // =============================================================================

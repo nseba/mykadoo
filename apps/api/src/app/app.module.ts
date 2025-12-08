@@ -7,9 +7,10 @@ import { ProfilesModule } from './profiles/profiles.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { PerformanceModule } from './performance/performance.module';
 import { AffiliateModule } from './affiliate/affiliate.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
-  imports: [SearchModule, ProfilesModule, FeedbackModule, PerformanceModule, AffiliateModule],
+  imports: [SearchModule, ProfilesModule, FeedbackModule, PerformanceModule, AffiliateModule, ProductsModule],
   controllers: [AppController, HealthController],
   providers: [AppService],
 })
