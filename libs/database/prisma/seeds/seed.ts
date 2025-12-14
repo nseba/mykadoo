@@ -6,6 +6,7 @@
 
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
+import { seedContent } from './content-seed';
 
 const prisma = new PrismaClient();
 
@@ -300,6 +301,10 @@ async function main() {
 
   console.log(`✅ Created user feedback`);
 
+  // Seed content (articles, categories, tags, authors)
+  console.log('\n📝 Seeding content...');
+  await seedContent();
+
   console.log('🎉 Database seed completed successfully!');
   console.log('\n📊 Summary:');
   console.log(`   Users: 3 (1 admin, 1 gold, 1 free)`);
@@ -308,6 +313,10 @@ async function main() {
   console.log(`   Wishlists: 1`);
   console.log(`   Searches: 1`);
   console.log(`   Feedback: 1`);
+  console.log(`   Authors: 3`);
+  console.log(`   Categories: 5`);
+  console.log(`   Tags: 20`);
+  console.log(`   Articles: 5 (sample gift guides)`);
   console.log('\n✉️  Test credentials:');
   console.log(`   Admin: admin@mykadoo.com / Test123!@#`);
   console.log(`   Gold:  gold@mykadoo.com / Test123!@#`);

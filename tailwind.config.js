@@ -17,6 +17,20 @@ module.exports = {
     extend: {
       // Colors from design tokens
       colors: {
+        // Coral - Brand primary color (warm, inviting)
+        coral: {
+          50: '#FFF5F5',
+          100: '#FFE5E5',
+          200: '#FFB8B8',
+          300: '#FF8A8A',
+          400: '#FF6B6B',
+          500: '#FF5252',
+          600: '#E63946',
+          700: '#CC2936',
+          800: '#B31B28',
+          900: '#8B1420',
+          DEFAULT: '#FF6B6B',
+        },
         primary: {
           50: '#FFE5E5',
           100: '#FFCCCC',

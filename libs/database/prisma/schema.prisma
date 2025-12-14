@@ -8,7 +8,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // =============================================================================
@@ -625,4 +624,295 @@ model EmailVerificationToken {
   @@index([token])
   @@index([expiresAt])
   @@map("email_verification_tokens")
+}
+
+// =============================================================================
+// CONTENT MANAGEMENT SYSTEM (PRD 0004)
+// =============================================================================
+
+model Author {
+  id        String   @id @default(uuid())
+
+  // Author info
+  name      String
+  slug      String   @unique
+  email     String?  @unique
+  bio       String?  @db.Text
+  avatarUrl String?  @map("avatar_url")
+
+  // Social links
+  twitterHandle  String?  @map("twitter_handle")
+  linkedinUrl    String?  @map("linkedin_url")
+  websiteUrl     String?  @map("website_url")
+
+  // Relations
+  articles  Article[]
+
+  // Tracking
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([slug])
+  @@index([isActive])
+  @@map("authors")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+
+  // Category info
+  name        String
+  slug        String   @unique
+  description String?  @db.Text
+  imageUrl    String?  @map("image_url")
+
+  // Hierarchy (optional parent for nested categories)
+  parentId    String?  @map("parent_id")
+  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+
+  // Relations
+  articles    ArticleCategory[]
+
+  // SEO
+  seoTitle       String?  @map("seo_title")
+  seoDescription String?  @map("seo_description") @db.Text
+
+  // Display order
+  sortOrder   Int      @default(0) @map("sort_order")
+  isActive    Boolean  @default(true) @map("is_active")
+
+  // Tracking
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([slug])
+  @@index([parentId])
+  @@index([isActive])
+  @@index([sortOrder])
+  @@map("categories")
+}
+
+model Tag {
+  id        String   @id @default(uuid())
+
+  // Tag info
+  name      String   @unique
+  slug      String   @unique
+
+  // Relations
+  articles  ArticleTag[]
+
+  // Tracking
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([slug])
+  @@map("tags")
+}
+
+model Article {
+  id        String   @id @default(uuid())
+
+  // Basic info
+  title       String
+  slug        String   @unique
+  excerpt     String?  @db.Text // Short summary for previews
+  content     String   @db.Text // HTML or Markdown content
+
+  // Featured image
+  featuredImageUrl    String?  @map("featured_image_url")
+  featuredImageAlt    String?  @map("featured_image_alt")
+  featuredImageCaption String? @map("featured_image_caption")
+
+  // Author
+  authorId    String   @map("author_id")
+  author      Author   @relation(fields: [authorId], references: [id])
+
+  // Status & scheduling
+  status      ArticleStatus @default(DRAFT)
+  publishedAt DateTime?     @map("published_at")
+  scheduledAt DateTime?     @map("scheduled_at")
+
+  // Content type
+  contentType ArticleContentType @default(ARTICLE) @map("content_type")
+
+  // SEO fields
+  seoTitle       String?  @map("seo_title") // Override for title tag
+  seoDescription String?  @map("seo_description") @db.Text // Meta description
+  seoKeywords    String[] @map("seo_keywords")
+  canonicalUrl   String?  @map("canonical_url") // For cross-posting
+
+  // Open Graph
+  ogTitle       String?  @map("og_title")
+  ogDescription String?  @map("og_description") @db.Text
+  ogImageUrl    String?  @map("og_image_url")
+
+  // Reading metrics
+  readingTimeMinutes Int?  @map("reading_time_minutes")
+  wordCount          Int?  @map("word_count")
+
+  // Analytics
+  viewCount    Int      @default(0) @map("view_count")
+  shareCount   Int      @default(0) @map("share_count")
+
+  // Relations
+  categories   ArticleCategory[]
+  tags         ArticleTag[]
+  relatedFrom  RelatedArticle[] @relation("RelatedFrom")
+  relatedTo    RelatedArticle[] @relation("RelatedTo")
+  media        ArticleMedia[]
+
+  // Tracking
+  isFeatured   Boolean  @default(false) @map("is_featured")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([slug])
+  @@index([status])
+  @@index([publishedAt])
+  @@index([contentType])
+  @@index([authorId])
+  @@index([isFeatured])
+  @@index([viewCount])
+  @@index([createdAt])
+  @@map("articles")
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  SCHEDULED
+  ARCHIVED
+}
+
+enum ArticleContentType {
+  ARTICLE       // Standard blog article
+  GIFT_GUIDE    // Curated gift list
+  HOW_TO        // Instructional content
+  SEASONAL      // Holiday/occasion guides
+  TREND         // Current trends
+  BUYERS_GUIDE  // Category deep-dives
+}
+
+// Junction table for Article-Category many-to-many
+model ArticleCategory {
+  id         String   @id @default(uuid())
+  articleId  String   @map("article_id")
+  categoryId String   @map("category_id")
+
+  article    Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  // Primary category flag (one category can be primary)
+  isPrimary  Boolean  @default(false) @map("is_primary")
+
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@unique([articleId, categoryId])
+  @@index([articleId])
+  @@index([categoryId])
+  @@map("article_categories")
+}
+
+// Junction table for Article-Tag many-to-many
+model ArticleTag {
+  id        String   @id @default(uuid())
+  articleId String   @map("article_id")
+  tagId     String   @map("tag_id")
+
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([articleId, tagId])
+  @@index([articleId])
+  @@index([tagId])
+  @@map("article_tags")
+}
+
+// Related articles for internal linking
+model RelatedArticle {
+  id            String   @id @default(uuid())
+  articleId     String   @map("article_id")
+  relatedId     String   @map("related_id")
+
+  article       Article  @relation("RelatedFrom", fields: [articleId], references: [id], onDelete: Cascade)
+  related       Article  @relation("RelatedTo", fields: [relatedId], references: [id], onDelete: Cascade)
+
+  // Manual vs auto-generated
+  isManual      Boolean  @default(false) @map("is_manual")
+  relevanceScore Float?  @map("relevance_score") // For auto-generated relations
+
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@unique([articleId, relatedId])
+  @@index([articleId])
+  @@index([relatedId])
+  @@map("related_articles")
+}
+
+// Media library for CMS
+model Media {
+  id        String   @id @default(uuid())
+
+  // File info
+  filename     String
+  originalName String   @map("original_name")
+  mimeType     String   @map("mime_type")
+  size         Int      // Size in bytes
+
+  // URLs
+  url          String   @db.Text // Full CDN URL
+  thumbnailUrl String?  @map("thumbnail_url") @db.Text
+
+  // Responsive sizes (for images)
+  sizes        Json?    // { "320": "url", "640": "url", "1024": "url", "1920": "url" }
+
+  // Image dimensions (if applicable)
+  width        Int?
+  height       Int?
+
+  // Metadata
+  alt          String?  // Alt text for images
+  caption      String?  @db.Text
+
+  // Organization
+  folder       String?  // Virtual folder path
+
+  // Relations
+  articles     ArticleMedia[]
+
+  // Tracking
+  uploadedBy   String?  @map("uploaded_by") // User ID who uploaded
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([mimeType])
+  @@index([folder])
+  @@index([createdAt])
+  @@map("media")
+}
+
+// Junction table for Article-Media
+model ArticleMedia {
+  id        String   @id @default(uuid())
+  articleId String   @map("article_id")
+  mediaId   String   @map("media_id")
+
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  media     Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  // Usage context
+  usage     String?  // "featured", "inline", "gallery"
+  sortOrder Int      @default(0) @map("sort_order")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([articleId, mediaId])
+  @@index([articleId])
+  @@index([mediaId])
+  @@map("article_media")
 }
