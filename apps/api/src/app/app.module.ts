@@ -12,6 +12,7 @@ import { TrackingModule } from './tracking/tracking.module';
 import { SyncModule } from './sync/sync.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { ContentModule } from './content/content.module';
+import { SubscriptionModule } from './subscription/subscription.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ContentModule } from './content/content.module';
     SyncModule,
     AnalyticsModule,
     ContentModule,
+    SubscriptionModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],

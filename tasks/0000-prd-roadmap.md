@@ -52,11 +52,13 @@ Mykadoo is an AI-powered gift search engine that helps users find the perfect gi
 **Goal:** Implement subscription model and enhance platform features
 
 **PRDs:**
-5. **0005-prd-subscription-tiers.md** - Subscription & Payment System
-   - Free, Gold, Platinum tiers
-   - Payment integration (Stripe)
-   - Subscription management
-   - Feature gating
+5. **0005-prd-subscription-tiers.md** - Subscription & Payment System 🔄 **IN PROGRESS**
+   - Free, Gold, Platinum tiers ✅
+   - Payment integration (Stripe) ✅
+   - Subscription management ✅
+   - Feature gating ✅
+   - Pricing page and UI ✅
+   - Testing (pending)
 
 6. **0006-prd-cms-ai-curation.md** - CMS with AI Content Curation
    - Admin CMS backend
@@ -291,7 +293,15 @@ Mykadoo is an AI-powered gift search engine that helps users find the perfect gi
   - Design system documentation with CHANGELOG v1.0.0
 
 ### In Progress PRDs
-- 🔄 None currently
+- 🔄 **PRD 0005: Subscription & Payment System** (Started: December 2025)
+  - ✅ Stripe integration and database schema
+  - ✅ Subscription management service
+  - ✅ Stripe webhook handling
+  - ✅ Feature gating system
+  - ✅ Subscription API endpoints
+  - ✅ Pricing page and subscription UI
+  - ✅ Upgrade prompts and usage display
+  - ⏳ Testing and quality verification (pending)
 
 ### Planned PRDs
 - 📋 **PRD 0013:** Advanced AI Features & Conversational Agents
@@ -309,12 +319,11 @@ Mykadoo is an AI-powered gift search engine that helps users find the perfect gi
 4. ✅ ~~Implement PRD 0003 (E-commerce Integration & Affiliate Platform)~~ **COMPLETED**
 5. ✅ ~~Implement PRD 0015 (Design System & Brand Identity)~~ **COMPLETED**
 6. ✅ ~~Implement PRD 0004 (Content System & SEO Foundation)~~ **COMPLETED**
-7. **RECOMMENDED NEXT:** Implement PRD 0016 (DevOps & CI/CD) for production readiness
-   - Establish automated testing and deployment pipelines
-   - Set up proper CI/CD workflows
-   - Production monitoring and alerting
-8. Create and implement Phase 2 PRDs (0005-0008):
-   - PRD 0005: Subscription & Payment System
+7. 🔄 **IN PROGRESS:** Implement PRD 0005 (Subscription & Payment System)
+   - Backend complete: Stripe integration, webhooks, feature gating
+   - Frontend complete: Pricing page, subscription management, usage display
+   - Pending: Testing and quality verification
+8. **RECOMMENDED NEXT:** Complete PRD 0005 testing, then implement remaining Phase 2 PRDs:
    - PRD 0006: CMS with AI Content Curation
    - PRD 0007: Analytics & User Insights
    - PRD 0008: Wishlists & Sharing Features
@@ -328,11 +337,12 @@ Mykadoo is an AI-powered gift search engine that helps users find the perfect gi
 
 ---
 
-**Last Updated:** December 14, 2025
-**Completion:** 5 of 20 PRDs (25%)
+**Last Updated:** December 16, 2025
+**Completion:** 5 of 20 PRDs complete (25%), 1 in progress
 **Phase 1 Progress:** 4 of 4 PRDs complete (100%) ✅
-**Current Phase:** Phase 1 Complete - Ready for Phase 2 (Monetization & Growth)
-**Total Code Generated:** ~33,000+ lines across 260+ files
+**Phase 2 Progress:** 1 of 4 PRDs in progress (PRD 0005 ~90% complete)
+**Current Phase:** Phase 2 - Monetization & Growth
+**Total Code Generated:** ~36,000+ lines across 280+ files
 
 **Completed PRDs:**
 1. ✅ PRD 0001: Core Gift Search & AI Recommendation Engine
@@ -341,6 +351,9 @@ Mykadoo is an AI-powered gift search engine that helps users find the perfect gi
 4. ✅ PRD 0004: Content System & SEO Foundation
 5. ✅ PRD 0015: Design System & Brand Identity
 
+**In Progress PRDs:**
+- 🔄 PRD 0005: Subscription & Payment System (Tasks 1.0-7.0 complete, Task 8.0 pending)
+
 **Recommended Next Steps:**
-- PRD 0016: DevOps, Testing & CI/CD Infrastructure (production readiness)
-- PRD 0005: Subscription & Payment System (monetization)
+- Complete PRD 0005 testing (Task 8.0)
+- PRD 0006: CMS with AI Content Curation
