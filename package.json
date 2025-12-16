@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "start": "./scripts/start-dev.sh",
+    "start:docker": "./scripts/start-docker.sh",
+    "stop": "./scripts/stop.sh",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "db:generate": "prisma generate --schema=libs/database/prisma/schema.prisma",
