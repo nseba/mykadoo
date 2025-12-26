@@ -3,7 +3,9 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getCategoryBySlug, getCategoryArticles, getCategories } from '../../../../lib/content-api';
 import { generateCategoryMetadata } from '../../../../lib/seo';
-import { ArticleCard, Breadcrumbs, Pagination } from '../../../../components/content';
+import { ArticleCard } from '../../../../components/content/ArticleCard';
+import { Breadcrumbs } from '../../../../components/content/Breadcrumbs';
+import { Pagination } from '../../../../components/content/Pagination';
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;

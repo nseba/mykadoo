@@ -6,7 +6,6 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import {
-  PrismaClient,
   SubscriptionPlan,
   SubscriptionStatus,
   BillingInterval,
@@ -16,6 +15,7 @@ import {
   PaymentStatus,
 } from '@prisma/client';
 import { StripeService } from './stripe.service';
+import { PrismaService } from '../common/prisma';
 import Stripe from 'stripe';
 
 export interface PlanLimits {
@@ -70,11 +70,11 @@ export interface SubscriptionWithUsage extends Subscription {
 @Injectable()
 export class SubscriptionService {
   private readonly logger = new Logger(SubscriptionService.name);
-  private readonly prisma: PrismaClient;
 
-  constructor(private readonly stripeService: StripeService) {
-    this.prisma = new PrismaClient();
-  }
+  constructor(
+    private readonly stripeService: StripeService,
+    private readonly prisma: PrismaService
+  ) {}
 
   // Get or create subscription for user
   async getOrCreateSubscription(userId: string): Promise<Subscription> {

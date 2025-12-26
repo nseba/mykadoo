@@ -1,3 +1,5 @@
+'use client';
+
 export { OptimizedImage } from './OptimizedImage';
 export {
   Skeleton,

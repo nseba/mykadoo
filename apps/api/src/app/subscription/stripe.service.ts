@@ -23,17 +23,21 @@ export interface StripeProductConfig {
 @Injectable()
 export class StripeService implements OnModuleInit {
   private readonly logger = new Logger(StripeService.name);
-  private stripe: Stripe;
+  private stripe: Stripe | null = null;
   private prices: StripeProductConfig | null = null;
+  private readonly isConfigured: boolean;
 
   constructor(private readonly configService: ConfigService) {
     const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
+    this.isConfigured = !!secretKey;
+
     if (!secretKey) {
       this.logger.warn('STRIPE_SECRET_KEY not configured - Stripe features disabled');
+    } else {
+      this.stripe = new Stripe(secretKey, {
+        typescript: true,
+      });
     }
-    this.stripe = new Stripe(secretKey || '', {
-      typescript: true,
-    });
   }
 
   async onModuleInit() {
@@ -84,8 +88,14 @@ export class StripeService implements OnModuleInit {
     }
   }
 
-  get client(): Stripe {
+  get client(): Stripe | null {
     return this.stripe;
+  }
+
+  private ensureConfigured(): void {
+    if (!this.stripe) {
+      throw new Error('Stripe is not configured. Set STRIPE_SECRET_KEY environment variable.');
+    }
   }
 
   getPriceConfig(): StripeProductConfig | null {
@@ -101,7 +111,8 @@ export class StripeService implements OnModuleInit {
 
   // Customer Management
   async createCustomer(email: string, name?: string, metadata?: Record<string, string>): Promise<Stripe.Customer> {
-    return this.stripe.customers.create({
+    this.ensureConfigured();
+    return this.stripe!.customers.create({
       email,
       name,
       metadata,
@@ -109,6 +120,7 @@ export class StripeService implements OnModuleInit {
   }
 
   async getCustomer(customerId: string): Promise<Stripe.Customer | null> {
+    if (!this.stripe) return null;
     try {
       const customer = await this.stripe.customers.retrieve(customerId);
       if (customer.deleted) return null;
@@ -119,7 +131,8 @@ export class StripeService implements OnModuleInit {
   }
 
   async updateCustomer(customerId: string, data: Stripe.CustomerUpdateParams): Promise<Stripe.Customer> {
-    return this.stripe.customers.update(customerId, data);
+    this.ensureConfigured();
+    return this.stripe!.customers.update(customerId, data);
   }
 
   // Subscription Management
@@ -132,6 +145,7 @@ export class StripeService implements OnModuleInit {
       metadata?: Record<string, string>;
     }
   ): Promise<Stripe.Subscription> {
+    this.ensureConfigured();
     const params: Stripe.SubscriptionCreateParams = {
       customer: customerId,
       items: [{ price: priceId }],
@@ -149,10 +163,11 @@ export class StripeService implements OnModuleInit {
       params.discounts = [{ coupon: options.couponId }];
     }
 
-    return this.stripe.subscriptions.create(params);
+    return this.stripe!.subscriptions.create(params);
   }
 
   async getSubscription(subscriptionId: string): Promise<Stripe.Subscription | null> {
+    if (!this.stripe) return null;
     try {
       return await this.stripe.subscriptions.retrieve(subscriptionId);
     } catch {
@@ -164,20 +179,23 @@ export class StripeService implements OnModuleInit {
     subscriptionId: string,
     params: Stripe.SubscriptionUpdateParams
   ): Promise<Stripe.Subscription> {
-    return this.stripe.subscriptions.update(subscriptionId, params);
+    this.ensureConfigured();
+    return this.stripe!.subscriptions.update(subscriptionId, params);
   }
 
   async cancelSubscription(subscriptionId: string, immediately = false): Promise<Stripe.Subscription> {
+    this.ensureConfigured();
     if (immediately) {
-      return this.stripe.subscriptions.cancel(subscriptionId);
+      return this.stripe!.subscriptions.cancel(subscriptionId);
     }
-    return this.stripe.subscriptions.update(subscriptionId, {
+    return this.stripe!.subscriptions.update(subscriptionId, {
       cancel_at_period_end: true,
     });
   }
 
   async reactivateSubscription(subscriptionId: string): Promise<Stripe.Subscription> {
-    return this.stripe.subscriptions.update(subscriptionId, {
+    this.ensureConfigured();
+    return this.stripe!.subscriptions.update(subscriptionId, {
       cancel_at_period_end: false,
     });
   }
@@ -194,6 +212,7 @@ export class StripeService implements OnModuleInit {
       metadata?: Record<string, string>;
     }
   ): Promise<Stripe.Checkout.Session> {
+    this.ensureConfigured();
     const params: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       mode: 'subscription',
@@ -214,7 +233,7 @@ export class StripeService implements OnModuleInit {
       params.discounts = [{ coupon: options.couponId }];
     }
 
-    return this.stripe.checkout.sessions.create(params);
+    return this.stripe!.checkout.sessions.create(params);
   }
 
   // Billing Portal
@@ -222,7 +241,8 @@ export class StripeService implements OnModuleInit {
     customerId: string,
     returnUrl: string
   ): Promise<Stripe.BillingPortal.Session> {
-    return this.stripe.billingPortal.sessions.create({
+    this.ensureConfigured();
+    return this.stripe!.billingPortal.sessions.create({
       customer: customerId,
       return_url: returnUrl,
     });
@@ -230,6 +250,7 @@ export class StripeService implements OnModuleInit {
 
   // Invoices
   async listInvoices(customerId: string, limit = 10): Promise<Stripe.Invoice[]> {
+    if (!this.stripe) return [];
     const invoices = await this.stripe.invoices.list({
       customer: customerId,
       limit,
@@ -238,6 +259,7 @@ export class StripeService implements OnModuleInit {
   }
 
   async getInvoice(invoiceId: string): Promise<Stripe.Invoice | null> {
+    if (!this.stripe) return null;
     try {
       return await this.stripe.invoices.retrieve(invoiceId);
     } catch {
@@ -247,10 +269,12 @@ export class StripeService implements OnModuleInit {
 
   // Coupons
   async createCoupon(params: Stripe.CouponCreateParams): Promise<Stripe.Coupon> {
-    return this.stripe.coupons.create(params);
+    this.ensureConfigured();
+    return this.stripe!.coupons.create(params);
   }
 
   async getCoupon(couponId: string): Promise<Stripe.Coupon | null> {
+    if (!this.stripe) return null;
     try {
       return await this.stripe.coupons.retrieve(couponId);
     } catch {
@@ -260,15 +284,17 @@ export class StripeService implements OnModuleInit {
 
   // Webhook Verification
   constructWebhookEvent(payload: Buffer, signature: string): Stripe.Event {
+    this.ensureConfigured();
     const webhookSecret = this.configService.get<string>('STRIPE_WEBHOOK_SECRET');
     if (!webhookSecret) {
       throw new Error('STRIPE_WEBHOOK_SECRET not configured');
     }
-    return this.stripe.webhooks.constructEvent(payload, signature, webhookSecret);
+    return this.stripe!.webhooks.constructEvent(payload, signature, webhookSecret);
   }
 
   // Payment Methods
   async listPaymentMethods(customerId: string): Promise<Stripe.PaymentMethod[]> {
+    if (!this.stripe) return [];
     const methods = await this.stripe.paymentMethods.list({
       customer: customerId,
       type: 'card',
@@ -277,6 +303,7 @@ export class StripeService implements OnModuleInit {
   }
 
   async detachPaymentMethod(paymentMethodId: string): Promise<Stripe.PaymentMethod> {
-    return this.stripe.paymentMethods.detach(paymentMethodId);
+    this.ensureConfigured();
+    return this.stripe!.paymentMethods.detach(paymentMethodId);
   }
 }

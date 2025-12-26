@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Search Components Barrel Exports
  */

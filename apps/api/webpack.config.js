@@ -9,6 +9,11 @@ module.exports = {
       devtoolModuleFilenameTemplate: '[absolute-resource-path]',
     }),
   },
+  // Externalize Prisma - it uses dynamic requires that break when bundled
+  externals: {
+    '@prisma/client': 'commonjs @prisma/client',
+    '.prisma/client': 'commonjs .prisma/client',
+  },
   plugins: [
     new NxAppWebpackPlugin({
       target: 'node',

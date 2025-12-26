@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { getArticles, getCategories, getFeaturedArticles } from '../../lib/content-api';
 import { generateBlogListMetadata } from '../../lib/seo';
 import { generateWebSiteSchema, generateOrganizationSchema } from '../../lib/structured-data';
-import { ArticleCard, Breadcrumbs, Pagination } from '../../components/content';
+import { ArticleCard } from '../../components/content/ArticleCard';
+import { Breadcrumbs } from '../../components/content/Breadcrumbs';
+import { Pagination } from '../../components/content/Pagination';
 
 interface BlogPageProps {
   searchParams: Promise<{ page?: string }>;

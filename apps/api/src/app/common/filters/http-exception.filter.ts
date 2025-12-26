@@ -46,10 +46,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       if (typeof response === 'string') {
         return response;
       }
-      if (typeof response === 'object' && 'message' in response) {
-        return Array.isArray(response.message)
-          ? response.message.join(', ')
-          : response.message;
+      if (typeof response === 'object' && response !== null && 'message' in response) {
+        const responseObj = response as { message: unknown };
+        return Array.isArray(responseObj.message)
+          ? responseObj.message.join(', ')
+          : String(responseObj.message);
       }
     }
 

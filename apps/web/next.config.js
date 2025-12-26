@@ -10,8 +10,8 @@ const nextConfig = {
   // Use this to set Nx-specific options
   // See: https://nx.dev/recipes/next/next-config-setup
   nx: {},
-  // Enable standalone output for Docker
-  output: 'standalone',
+  // NOTE: standalone output disabled due to Nx build issues - use standard output
+  // output: 'standalone',
 
   // Image optimization configuration
   images: {

@@ -1,5 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaClient, Product, AffiliatePlatform, ProductAvailability } from '@prisma/client';
+import { Product, AffiliatePlatform, ProductAvailability } from '@prisma/client';
+import { PrismaService } from '../common/prisma';
 
 export interface CreateProductDto {
   title: string;
@@ -67,11 +68,8 @@ export interface ProductSearchFilters {
 @Injectable()
 export class ProductsService {
   private readonly logger = new Logger(ProductsService.name);
-  private readonly prisma: PrismaClient;
 
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Create a new product
@@ -569,7 +567,4 @@ export class ProductsService {
     }
   }
 
-  async onModuleDestroy() {
-    await this.prisma.$disconnect();
-  }
 }

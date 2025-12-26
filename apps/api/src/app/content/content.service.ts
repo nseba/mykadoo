@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
-import { PrismaClient, ArticleStatus, ArticleContentType, Prisma } from '@prisma/client';
+import { ArticleStatus, ArticleContentType, Prisma } from '@prisma/client';
 import {
   CreateArticleDto,
   UpdateArticleDto,
@@ -18,14 +18,11 @@ import {
   UpdateTagDto,
   TagResponseDto,
 } from './dto';
+import { PrismaService } from '../common/prisma';
 
 @Injectable()
 export class ContentService {
-  private prisma: PrismaClient;
-
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   // ==================== UTILITY METHODS ====================
 

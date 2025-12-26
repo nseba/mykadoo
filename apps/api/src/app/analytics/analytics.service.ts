@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaClient, AffiliatePlatform } from '@prisma/client';
+import { AffiliatePlatform } from '@prisma/client';
+import { PrismaService } from '../common/prisma';
 
 export interface DateRange {
   startDate: Date;
@@ -58,11 +59,8 @@ export interface ExportFormat {
 @Injectable()
 export class AnalyticsService {
   private readonly logger = new Logger(AnalyticsService.name);
-  private readonly prisma: PrismaClient;
 
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Get comprehensive revenue dashboard

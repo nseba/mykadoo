@@ -1,3 +1,5 @@
+'use client';
+
 export { useScrollTracking } from './useScrollTracking';
 export {
   SubscriptionProvider,

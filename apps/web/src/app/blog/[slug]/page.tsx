@@ -7,7 +7,10 @@ import { Clock, Eye, Share2, Calendar } from 'lucide-react';
 import { getArticleBySlug, getRelatedArticles, getArticles } from '../../../lib/content-api';
 import { generateArticleMetadata } from '../../../lib/seo';
 import { generateArticleSchema, generateBreadcrumbSchema } from '../../../lib/structured-data';
-import { ArticleCard, AuthorCard, Breadcrumbs, TableOfContents } from '../../../components/content';
+import { ArticleCard } from '../../../components/content/ArticleCard';
+import { AuthorCard } from '../../../components/content/AuthorCard';
+import { Breadcrumbs } from '../../../components/content/Breadcrumbs';
+import { TableOfContents } from '../../../components/content/TableOfContents';
 
 interface ArticlePageProps {
   params: Promise<{ slug: string }>;

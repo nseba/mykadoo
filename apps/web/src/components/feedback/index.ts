@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Feedback Components Barrel Exports
  */

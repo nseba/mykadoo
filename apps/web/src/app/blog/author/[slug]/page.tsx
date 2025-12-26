@@ -6,7 +6,9 @@ import { Twitter, Linkedin, Globe } from 'lucide-react';
 import { getAuthorBySlug, getAuthorArticles, getAuthors } from '../../../../lib/content-api';
 import { generateAuthorMetadata } from '../../../../lib/seo';
 import { generatePersonSchema } from '../../../../lib/structured-data';
-import { ArticleCard, Breadcrumbs, Pagination } from '../../../../components/content';
+import { ArticleCard } from '../../../../components/content/ArticleCard';
+import { Breadcrumbs } from '../../../../components/content/Breadcrumbs';
+import { Pagination } from '../../../../components/content/Pagination';
 
 interface AuthorPageProps {
   params: Promise<{ slug: string }>;

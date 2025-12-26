@@ -1,9 +1,7 @@
-import '@mykadoo/design-system';
 import './global.css';
-import { Suspense } from 'react';
 import { Inter } from 'next/font/google';
 import type { Metadata, Viewport } from 'next';
-import { GoogleAnalytics, AnalyticsProvider } from '../components/analytics';
+import { AnalyticsProvider } from '../components/analytics';
 
 // Optimized font loading with font-display: swap
 const inter = Inter({
@@ -113,10 +111,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
       </head>
       <body className={`${inter.className} antialiased`}>
-        <Suspense fallback={null}>
-          <AnalyticsProvider>{children}</AnalyticsProvider>
-        </Suspense>
-        <GoogleAnalytics />
+        <AnalyticsProvider>{children}</AnalyticsProvider>
       </body>
     </html>
   );

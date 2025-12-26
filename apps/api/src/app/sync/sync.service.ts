@@ -2,9 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { PrismaClient, AffiliatePlatform, ProductAvailability } from '@prisma/client';
+import { AffiliatePlatform, ProductAvailability } from '@prisma/client';
 import { AmazonService } from '../affiliate/amazon/amazon.service';
 import { ProductsService } from '../products/products.service';
+import { PrismaService } from '../common/prisma';
 
 export interface SyncJobData {
   platform: AffiliatePlatform;
@@ -29,15 +30,13 @@ export interface SyncStats {
 @Injectable()
 export class SyncService {
   private readonly logger = new Logger(SyncService.name);
-  private readonly prisma: PrismaClient;
 
   constructor(
     @InjectQueue('product-sync') private syncQueue: Queue,
     private readonly amazonService: AmazonService,
-    private readonly productsService: ProductsService
-  ) {
-    this.prisma = new PrismaClient();
-  }
+    private readonly productsService: ProductsService,
+    private readonly prisma: PrismaService
+  ) {}
 
   /**
    * Daily full product sync from all platforms
@@ -218,46 +217,50 @@ export class SyncService {
           try {
             const products = await this.amazonService.searchProducts({
               keywords: searchTerm,
-              itemCount: 10,
+              itemsPerPage: 10,
             });
 
             for (const product of products) {
               try {
                 const existing = await this.productsService.findByExternalId(
                   AffiliatePlatform.AMAZON,
-                  product.ASIN
+                  product.asin
                 );
+
+                // Determine availability from the availability string
+                const isInStock = product.availability?.toLowerCase().includes('in stock') ?? false;
+                const affiliateLink = this.amazonService.generateAffiliateLink(product.asin);
 
                 if (existing) {
                   await this.productsService.update(existing.id, {
                     title: product.title,
-                    description: product.description,
                     imageUrl: product.imageUrl,
                     price: product.price,
                     salePrice: product.salePrice,
                     rating: product.rating,
                     reviewCount: product.reviewCount,
-                    affiliateLink: product.affiliateLink,
-                    availability: product.isAvailable ? ProductAvailability.IN_STOCK : ProductAvailability.OUT_OF_STOCK,
-                    platform: AffiliatePlatform.AMAZON,
-                    externalId: product.ASIN,
+                    affiliateLink,
+                    availability: isInStock ? ProductAvailability.IN_STOCK : ProductAvailability.OUT_OF_STOCK,
+                    brand: product.brand,
+                    category: product.category,
                   });
                   stats.productsUpdated++;
                 } else {
                   await this.productsService.create({
                     title: product.title,
-                    description: product.description,
                     imageUrl: product.imageUrl,
-                    price: product.price,
+                    price: product.price ?? 0,
                     salePrice: product.salePrice,
                     rating: product.rating,
                     reviewCount: product.reviewCount,
-                    affiliateLink: product.affiliateLink,
+                    affiliateLink,
                     platform: AffiliatePlatform.AMAZON,
-                    externalId: product.ASIN,
-                    availability: product.isAvailable ? ProductAvailability.IN_STOCK : ProductAvailability.OUT_OF_STOCK,
+                    externalId: product.asin,
+                    availability: isInStock ? ProductAvailability.IN_STOCK : ProductAvailability.OUT_OF_STOCK,
                     retailerName: 'Amazon',
                     retailerUrl: 'https://www.amazon.com',
+                    brand: product.brand,
+                    category: product.category,
                   });
                   stats.productsCreated++;
                 }
@@ -326,19 +329,16 @@ export class SyncService {
 
               if (!product) continue;
 
-              const amazonProduct = await this.amazonService.getProductDetails(product.externalId);
+              const amazonProduct = await this.amazonService.getProductByAsin(product.externalId);
 
               if (amazonProduct) {
+                const isInStock = amazonProduct.availability?.toLowerCase().includes('in stock') ?? false;
                 await this.productsService.update(productId, {
                   price: amazonProduct.price,
                   salePrice: amazonProduct.salePrice,
                   rating: amazonProduct.rating,
                   reviewCount: amazonProduct.reviewCount,
-                  availability: amazonProduct.isAvailable ? ProductAvailability.IN_STOCK : ProductAvailability.OUT_OF_STOCK,
-                  title: product.title,
-                  platform: AffiliatePlatform.AMAZON,
-                  externalId: product.externalId,
-                  affiliateLink: product.affiliateLink,
+                  availability: isInStock ? ProductAvailability.IN_STOCK : ProductAvailability.OUT_OF_STOCK,
                 });
                 stats.productsUpdated++;
               }
@@ -396,21 +396,17 @@ export class SyncService {
 
             if (!product) continue;
 
-            const amazonProduct = await this.amazonService.getProductDetails(product.externalId);
+            const amazonProduct = await this.amazonService.getProductByAsin(product.externalId);
 
             if (amazonProduct) {
-              const newAvailability = amazonProduct.isAvailable
+              const isInStock = amazonProduct.availability?.toLowerCase().includes('in stock') ?? false;
+              const newAvailability = isInStock
                 ? ProductAvailability.IN_STOCK
                 : ProductAvailability.OUT_OF_STOCK;
 
               if (product.availability !== newAvailability) {
                 await this.productsService.update(productId, {
                   availability: newAvailability,
-                  title: product.title,
-                  platform: AffiliatePlatform.AMAZON,
-                  externalId: product.externalId,
-                  affiliateLink: product.affiliateLink,
-                  price: product.price,
                 });
                 stats.productsUpdated++;
               }

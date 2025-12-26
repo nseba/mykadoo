@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HealthController } from './health.controller';
+import { PrismaModule } from './common/prisma';
 import { SearchModule } from './search/search.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { FeedbackModule } from './feedback/feedback.module';
@@ -16,6 +17,7 @@ import { SubscriptionModule } from './subscription/subscription.module';
 
 @Module({
   imports: [
+    PrismaModule,
     SearchModule,
     ProfilesModule,
     FeedbackModule,

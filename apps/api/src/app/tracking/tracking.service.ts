@@ -1,14 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaClient, AffiliatePlatform } from '@prisma/client';
+import { AffiliatePlatform } from '@prisma/client';
+import { PrismaService } from '../common/prisma';
 
 @Injectable()
 export class TrackingService {
   private readonly logger = new Logger(TrackingService.name);
-  private readonly prisma: PrismaClient;
 
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   async generateLink(params: {
     productId: string;

@@ -5,7 +5,7 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaService } from '../common/prisma';
 
 interface HealthStatus {
   status: 'healthy' | 'degraded' | 'unhealthy';
@@ -32,11 +32,9 @@ interface HealthCheck {
 @Injectable()
 export class HealthService {
   private readonly logger = new Logger(HealthService.name);
-  private readonly prisma: PrismaClient;
   private readonly startTime: number;
 
-  constructor() {
-    this.prisma = new PrismaClient();
+  constructor(private readonly prisma: PrismaService) {
     this.startTime = Date.now();
   }
 

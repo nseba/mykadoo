@@ -1,3 +1,5 @@
+'use client';
+
 export { ArticleCard } from './ArticleCard';
 export { ArticleNavigation } from './ArticleNavigation';
 export { AuthorCard } from './AuthorCard';

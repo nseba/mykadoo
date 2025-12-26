@@ -3,7 +3,9 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTagBySlug, getTagArticles, getTags } from '../../../../lib/content-api';
 import { generateTagMetadata } from '../../../../lib/seo';
-import { ArticleCard, Breadcrumbs, Pagination } from '../../../../components/content';
+import { ArticleCard } from '../../../../components/content/ArticleCard';
+import { Breadcrumbs } from '../../../../components/content/Breadcrumbs';
+import { Pagination } from '../../../../components/content/Pagination';
 
 interface TagPageProps {
   params: Promise<{ slug: string }>;

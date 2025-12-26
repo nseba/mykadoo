@@ -1,13 +1,6 @@
 import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {
-  GetItemsRequest,
-  SearchItemsRequest,
-  PartnerType,
-  GetItemsResource,
-  SearchItemsResource,
-} from 'paapi5-nodejs-sdk';
-import { ProductAdvertisingAPIClient } from 'paapi5-nodejs-sdk';
+import * as ProductAdvertisingAPIv1 from 'paapi5-nodejs-sdk';
 
 export interface AmazonProduct {
   asin: string;
@@ -38,15 +31,16 @@ export interface AmazonSearchParams {
 @Injectable()
 export class AmazonService {
   private readonly logger = new Logger(AmazonService.name);
-  private readonly client: ProductAdvertisingAPIClient;
+  private readonly api: ProductAdvertisingAPIv1.DefaultApi;
   private readonly associateTag: string;
-  private readonly partnerType: PartnerType = PartnerType.ASSOCIATES;
+  private readonly partnerType = 'Associates';
   private readonly cache: Map<string, { data: any; timestamp: number }> =
     new Map();
   private readonly CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour cache TTL
   private readonly RATE_LIMIT_MS = 1000; // 1 request per second for free tier
   private lastRequestTime = 0;
   private readonly maxRetries = 3;
+  private readonly isConfigured: boolean;
 
   constructor(private readonly configService: ConfigService) {
     const accessKey = this.configService.get<string>('AMAZON_ACCESS_KEY');
@@ -57,24 +51,24 @@ export class AmazonService {
       ''
     );
 
-    if (!accessKey || !secretKey || !this.associateTag) {
+    this.isConfigured = !!(accessKey && secretKey && this.associateTag);
+
+    if (!this.isConfigured) {
       this.logger.warn(
         'Amazon PA-API credentials not configured. Service will operate in mock mode.'
       );
-      // Initialize client anyway to prevent errors, but it won't work without credentials
-      this.client = new ProductAdvertisingAPIClient(
-        accessKey || 'mock',
-        secretKey || 'mock',
-        region,
-        this.associateTag || 'mock'
-      );
-    } else {
-      this.client = new ProductAdvertisingAPIClient(
-        accessKey,
-        secretKey,
-        region,
-        this.associateTag
-      );
+    }
+
+    // Configure the API client
+    const client = ProductAdvertisingAPIv1.ApiClient.instance;
+    client.accessKey = accessKey || 'mock';
+    client.secretKey = secretKey || 'mock';
+    client.host = `webservices.amazon.com`;
+    client.region = region;
+
+    this.api = new ProductAdvertisingAPIv1.DefaultApi();
+
+    if (this.isConfigured) {
       this.logger.log('Amazon PA-API client initialized successfully');
     }
   }
@@ -85,10 +79,15 @@ export class AmazonService {
   async searchProducts(
     params: AmazonSearchParams
   ): Promise<AmazonProduct[]> {
+    if (!this.isConfigured) {
+      this.logger.debug('Amazon API not configured, returning empty results');
+      return [];
+    }
+
     const cacheKey = `search:${JSON.stringify(params)}`;
 
     // Check cache first
-    const cached = this.getFromCache(cacheKey);
+    const cached = this.getFromCache<AmazonProduct[]>(cacheKey);
     if (cached) {
       this.logger.debug(`Cache hit for search: ${params.keywords}`);
       return cached;
@@ -98,43 +97,43 @@ export class AmazonService {
     await this.enforceRateLimit();
 
     try {
-      const searchRequest = new SearchItemsRequest();
+      const searchRequest: ProductAdvertisingAPIv1.SearchItemsRequest = {
+        Keywords: params.keywords,
+        SearchIndex: params.categoryId || 'All',
+        ItemPage: params.page || 1,
+        ItemCount: Math.min(params.itemsPerPage || 10, 10),
+        PartnerTag: this.associateTag,
+        PartnerType: this.partnerType,
+        Resources: [
+          'Images.Primary.Large',
+          'ItemInfo.Title',
+          'ItemInfo.Features',
+          'Offers.Listings.Price',
+          'Offers.Listings.SavingBasis',
+          'Offers.Listings.Availability.Message',
+          'Images.Variants.Large',
+        ] as ProductAdvertisingAPIv1.SearchItemsResource[],
+      };
 
-      if (params.keywords) {
-        searchRequest.Keywords = params.keywords;
-      }
-
-      if (params.categoryId) {
-        searchRequest.SearchIndex = params.categoryId;
-      }
-
-      if (params.minPrice || params.maxPrice) {
+      if (params.minPrice) {
         searchRequest.MinPrice = params.minPrice;
+      }
+      if (params.maxPrice) {
         searchRequest.MaxPrice = params.maxPrice;
       }
-
       if (params.minRating) {
         searchRequest.MinReviewsRating = params.minRating;
       }
 
-      searchRequest.ItemPage = params.page || 1;
-      searchRequest.ItemCount = Math.min(params.itemsPerPage || 10, 10); // Max 10 per request
-      searchRequest.PartnerTag = this.associateTag;
-      searchRequest.PartnerType = this.partnerType;
-      searchRequest.Resources = [
-        SearchItemsResource.IMAGES_PRIMARY_LARGE,
-        SearchItemsResource.ITEM_INFO_TITLE,
-        SearchItemsResource.ITEM_INFO_FEATURES,
-        SearchItemsResource.OFFERS_LISTINGS_PRICE,
-        SearchItemsResource.OFFERS_LISTINGS_SAVINGBASIS,
-        SearchItemsResource.OFFERS_LISTINGS_AVAILABILITY_MESSAGE,
-        SearchItemsResource.IMAGES_VARIANTS_LARGE,
-      ];
-
       this.logger.log(`Searching Amazon for: ${params.keywords}`);
 
       const response = await this.executeWithRetry(() =>
-        this.client.searchItems(searchRequest)
+        new Promise((resolve, reject) => {
+          this.api.searchItems(searchRequest, (error: Error | null, data: any) => {
+            if (error) reject(error);
+            else resolve(data);
+          });
+        })
       );
 
       const products = this.parseSearchResponse(response);
@@ -159,10 +158,15 @@ export class AmazonService {
    * Get product details by ASIN
    */
   async getProductByAsin(asin: string): Promise<AmazonProduct | null> {
+    if (!this.isConfigured) {
+      this.logger.debug('Amazon API not configured, returning null');
+      return null;
+    }
+
     const cacheKey = `product:${asin}`;
 
     // Check cache first
-    const cached = this.getFromCache(cacheKey);
+    const cached = this.getFromCache<AmazonProduct>(cacheKey);
     if (cached) {
       this.logger.debug(`Cache hit for ASIN: ${asin}`);
       return cached;
@@ -172,26 +176,32 @@ export class AmazonService {
     await this.enforceRateLimit();
 
     try {
-      const getItemsRequest = new GetItemsRequest();
-      getItemsRequest.ItemIds = [asin];
-      getItemsRequest.PartnerTag = this.associateTag;
-      getItemsRequest.PartnerType = this.partnerType;
-      getItemsRequest.Resources = [
-        GetItemsResource.IMAGES_PRIMARY_LARGE,
-        GetItemsResource.ITEM_INFO_TITLE,
-        GetItemsResource.ITEM_INFO_FEATURES,
-        GetItemsResource.ITEM_INFO_BY_LINE_INFO,
-        GetItemsResource.ITEM_INFO_CONTENT_INFO,
-        GetItemsResource.OFFERS_LISTINGS_PRICE,
-        GetItemsResource.OFFERS_LISTINGS_SAVINGBASIS,
-        GetItemsResource.OFFERS_LISTINGS_AVAILABILITY_MESSAGE,
-        GetItemsResource.IMAGES_VARIANTS_LARGE,
-      ];
+      const getItemsRequest: ProductAdvertisingAPIv1.GetItemsRequest = {
+        ItemIds: [asin],
+        PartnerTag: this.associateTag,
+        PartnerType: this.partnerType,
+        Resources: [
+          'Images.Primary.Large',
+          'ItemInfo.Title',
+          'ItemInfo.Features',
+          'ItemInfo.ByLineInfo',
+          'ItemInfo.ContentInfo',
+          'Offers.Listings.Price',
+          'Offers.Listings.SavingBasis',
+          'Offers.Listings.Availability.Message',
+          'Images.Variants.Large',
+        ] as ProductAdvertisingAPIv1.GetItemsResource[],
+      };
 
       this.logger.log(`Fetching Amazon product: ${asin}`);
 
       const response = await this.executeWithRetry(() =>
-        this.client.getItems(getItemsRequest)
+        new Promise((resolve, reject) => {
+          this.api.getItems(getItemsRequest, (error: Error | null, data: any) => {
+            if (error) reject(error);
+            else resolve(data);
+          });
+        })
       );
 
       const products = this.parseGetItemsResponse(response);
