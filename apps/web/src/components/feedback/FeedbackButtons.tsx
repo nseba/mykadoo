@@ -34,7 +34,7 @@ export const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({
     setFeedback(action);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:14001';
       const response = await fetch(`${apiUrl}/api/feedback`, {
         method: 'POST',
         headers: {

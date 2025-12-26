@@ -118,7 +118,7 @@ echo -e "${GREEN}Ready${NC}"
 echo -n "  API: "
 sleep 5  # Give API time to start
 for i in {1..30}; do
-    if curl -s http://localhost:3000/api > /dev/null 2>&1; then
+    if curl -s http://localhost:14001/api > /dev/null 2>&1; then
         echo -e "${GREEN}Ready${NC}"
         break
     fi
@@ -144,7 +144,7 @@ echo "  Mykadoo is running!"
 echo "==============================================${NC}"
 echo ""
 echo -e "  ${BLUE}Web Application:${NC}  http://localhost:3001"
-echo -e "  ${BLUE}API Server:${NC}       http://localhost:3000"
+echo -e "  ${BLUE}API Server:${NC}       http://localhost:14001"
 echo -e "  ${BLUE}Blog:${NC}             http://localhost:3001/blog"
 echo ""
 echo -e "  ${YELLOW}Useful commands:${NC}"

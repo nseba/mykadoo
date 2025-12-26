@@ -149,21 +149,21 @@ echo ""
 # Start services based on flags
 if [ "$WEB_ONLY" = true ]; then
     echo -e "${CYAN}Starting Web server only...${NC}"
-    echo -e "  ${BLUE}Web:${NC} http://localhost:4200"
+    echo -e "  ${BLUE}Web:${NC} http://localhost:14000"
     echo ""
     yarn nx serve web
 elif [ "$API_ONLY" = true ]; then
     echo -e "${CYAN}Starting API server only...${NC}"
-    echo -e "  ${BLUE}API:${NC} http://localhost:3000"
+    echo -e "  ${BLUE}API:${NC} http://localhost:14001"
     echo ""
     yarn nx serve api
 else
     # Start both API and Web in parallel
     echo -e "${CYAN}Starting API and Web servers...${NC}"
     echo ""
-    echo -e "  ${BLUE}API Server:${NC}       http://localhost:3000"
-    echo -e "  ${BLUE}Web Application:${NC}  http://localhost:4200"
-    echo -e "  ${BLUE}Blog:${NC}             http://localhost:4200/blog"
+    echo -e "  ${BLUE}API Server:${NC}       http://localhost:14001"
+    echo -e "  ${BLUE}Web Application:${NC}  http://localhost:14000"
+    echo -e "  ${BLUE}Blog:${NC}             http://localhost:14000/blog"
     echo ""
     echo -e "  ${YELLOW}Press Ctrl+C to stop all servers${NC}"
     echo ""

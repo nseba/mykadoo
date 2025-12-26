@@ -23,12 +23,12 @@
       "defaultConfiguration": "development",
       "options": {
         "cwd": "apps/web",
-        "command": "npx next dev -p 4200"
+        "command": "npx next dev -p 14000"
       },
       "configurations": {
         "development": {},
         "production": {
-          "command": "npx next start -p 4200"
+          "command": "npx next start -p 14000"
         }
       }
     },

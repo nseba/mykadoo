@@ -60,7 +60,7 @@ AMAZON_REGION=us-east-1  # or your preferred region
 yarn nx test api --testPathPattern=amazon.service
 
 # Check API health
-curl http://localhost:3000/api/affiliate/amazon/cache/stats
+curl http://localhost:14001/api/affiliate/amazon/cache/stats
 ```
 
 ## API Endpoints

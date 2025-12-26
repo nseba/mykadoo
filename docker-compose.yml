@@ -48,13 +48,13 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: ${NODE_ENV:-development}
-      PORT: ${API_PORT:-3000}
+      PORT: ${API_PORT:-14001}
       DATABASE_URL: postgresql://${POSTGRES_USER:-mykadoo_user}:${POSTGRES_PASSWORD:-mykadoo_password}@postgres:5432/${POSTGRES_DB:-mykadoo}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-mykadoo_redis_password}
     ports:
-      - "${API_PORT:-3000}:3000"
+      - "${API_PORT:-14001}:14001"
     depends_on:
       postgres:
         condition: service_healthy
@@ -76,10 +76,10 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: ${NODE_ENV:-development}
-      PORT: ${WEB_PORT:-3001}
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3000/api}
+      PORT: ${WEB_PORT:-14000}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:14001/api}
     ports:
-      - "${WEB_PORT:-3001}:3000"
+      - "${WEB_PORT:-14000}:14000"
     depends_on:
       - api
     networks:

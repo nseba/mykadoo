@@ -94,7 +94,7 @@ export interface Payment {
   createdAt: string;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:14001/api';
 
 async function fetchWithAuth<T>(
   endpoint: string,
