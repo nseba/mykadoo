@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+    <div className="bg-gradient-to-b from-white to-gray-50">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
@@ -128,33 +128,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="border-t border-gray-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold" style={{ color: '#FF6B6B' }}>
-                Mykadoo
-              </span>
-            </div>
-            <nav className="flex gap-8">
-              <Link href="/search" className="text-sm text-gray-600 hover:text-gray-900">
-                Search
-              </Link>
-              <Link href="/blog" className="text-sm text-gray-600 hover:text-gray-900">
-                Blog
-              </Link>
-              <Link href="/pricing" className="text-sm text-gray-600 hover:text-gray-900">
-                Pricing
-              </Link>
-            </nav>
-            <p className="text-sm text-gray-500">
-              &copy; {new Date().getFullYear()} Mykadoo. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

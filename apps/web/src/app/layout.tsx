@@ -1,7 +1,8 @@
 import './global.css';
 import { Inter } from 'next/font/google';
 import type { Metadata, Viewport } from 'next';
-import { AnalyticsProvider } from '../components/analytics';
+import { Header } from '../components/layout/Header';
+import { Footer } from '../components/layout/Footer';
 
 // Optimized font loading with font-display: swap
 const inter = Inter({
@@ -111,7 +112,19 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
       </head>
       <body className={`${inter.className} antialiased`}>
-        <AnalyticsProvider>{children}</AnalyticsProvider>
+        {/* Skip to content link for accessibility */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow-lg focus:ring-2 focus:ring-coral-500"
+          style={{ color: '#FF6B6B' }}
+        >
+          Skip to main content
+        </a>
+        <Header />
+        <main id="main-content" className="min-h-screen">
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   );
