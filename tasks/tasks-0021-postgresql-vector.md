@@ -1,10 +1,10 @@
 # Tasks: PostgreSQL Vector Store Integration (PRD 0021)
 
-**Status:** IN PROGRESS (40% complete - 4/10 tasks)
+**Status:** IN PROGRESS (50% complete - 5/10 tasks)
 **Priority:** P1 - High
 **Created:** 2025-12-28
 **Last Updated:** 2025-12-28
-**Commits:** `ea6c145`, `789c97e`, `524116a`
+**Commits:** `ea6c145`, `789c97e`, `524116a`, `351ebc4`
 **Estimated Effort:** 8 weeks
 
 ## Recommended Claude Code Agents
@@ -27,7 +27,7 @@
 | 2.0 Schema & Migrations | `nestjs-specialist` | `typescript-architect` | ✅ COMPLETED |
 | 3.0 VectorService | `nestjs-specialist` | `ai-architect` | ✅ COMPLETED |
 | 4.0 Embedding Pipeline | `ai-architect` | `nestjs-specialist` | ✅ COMPLETED |
-| 5.0 Similarity Search | `nestjs-specialist` | `typescript-architect` | ⏳ PENDING |
+| 5.0 Similarity Search | `nestjs-specialist` | `typescript-architect` | ✅ COMPLETED |
 | 6.0 Semantic Search | `ai-architect` | `nestjs-specialist` | ⏳ PENDING |
 | 7.0 AI Integration | `ai-architect` | `nestjs-specialist` | ⏳ PENDING |
 | 8.0 Performance Optimization | `devops-engineer` | `test-engineer` | ⏳ PENDING |
@@ -246,41 +246,53 @@
 
 ---
 
-### ⏳ 5.0 Implement Similarity Search API
+### ✅ 5.0 Implement Similarity Search API
 
-**Status:** PENDING
+**Status:** COMPLETED
 **Agent:** `nestjs-specialist`, `typescript-architect`
-**Estimated:** 3 days
+**Commit:** `351ebc4` - 2025-12-28
 
-#### 5.1 Create similar products endpoint
-- GET /api/products/:id/similar
-- Configurable similarity threshold
-- Limit and pagination
+#### 5.1 Create similar products endpoint ✅
+- GET /api/vectors/products/:id/similar (already implemented in Task 3.0)
+- Configurable similarity threshold via matchThreshold param
+- Limit and pagination support
 
-#### 5.2 Implement category-filtered similarity
-- Similar products within category
-- Cross-category recommendations
+#### 5.2 Implement category-filtered similarity ✅
+- categoryFilter param for same-category recommendations
+- Cross-category via default (no filter)
 
-#### 5.3 Add price-range filtering to similarity
-- Similar products in price range
-- Price tolerance configuration
+#### 5.3 Add price-range filtering to similarity ✅
+- minPrice and maxPrice query params
+- Implemented in SimilaritySearchService
 
-#### 5.4 Create similar products UI component
-- "You might also like" section
-- Lazy loading for performance
+#### 5.4 Create similar products UI component ✅
+- Created `SimilarProducts.tsx` component with "You might also like" section
+- Lazy loading via IntersectionObserver (200px rootMargin)
+- Horizontal scroll carousel with navigation arrows
+- `useSimilarProducts` hook for easy integration
 
-#### 5.5 Implement A/B testing for recommendations
-- Track click-through rates
-- Compare with baseline
+#### 5.5 Implement A/B testing for recommendations ✅
+- `SimilarityAnalyticsService` with 4 variants: control, basic, hybrid, personalized
+- Deterministic variant assignment based on user/session ID
+- Configurable weights (10% control, 30% each treatment)
+- A/B test results endpoint with statistical significance
 
-#### 5.6 Add analytics for similarity searches
-- Log search requests
-- Track conversion rates
+#### 5.6 Add analytics for similarity searches ✅
+- Created `similarity_events` database table with indexes
+- Track search, impression, click, and conversion events
+- Event buffering for performance (100 events, 30s flush)
+- REST API endpoints for tracking and metrics:
+  - POST /api/similarity-analytics/track/search
+  - POST /api/similarity-analytics/track/impression
+  - POST /api/similarity-analytics/track/click
+  - POST /api/similarity-analytics/track/conversion
+  - GET /api/similarity-analytics/metrics
+  - GET /api/similarity-analytics/ab-test/results
 
-#### 5.7 Run linter and verify zero warnings
-#### 5.8 Run full test suite and verify all tests pass
-#### 5.9 Build project and verify successful compilation
-#### 5.10 Verify system functionality end-to-end
+#### 5.7 Run linter and verify zero warnings ✅
+#### 5.8 Run full test suite and verify all tests pass ✅
+#### 5.9 Build project and verify successful compilation ✅
+#### 5.10 Verify system functionality end-to-end ✅
 
 ---
 
@@ -472,9 +484,9 @@
 
 ## Implementation Summary
 
-**Overall Status:** IN PROGRESS (40% complete)
-**Completed:** 4/10 tasks
-**Remaining:** 6 tasks
+**Overall Status:** IN PROGRESS (50% complete)
+**Completed:** 5/10 tasks
+**Remaining:** 5 tasks
 **Estimated Total Effort:** 8 weeks
 
 ### Key Deliverables
@@ -482,6 +494,7 @@
 - ✅ Database schema with vector columns and indices
 - ✅ VectorService with embedding and similarity search
 - ✅ Embedding pipeline with BullMQ job queue
+- ✅ Similarity Search API with A/B testing and analytics
 - ⏳ Semantic/hybrid search API
 - ⏳ AI agent integration
 - ⏳ Performance-optimized vector queries
@@ -509,3 +522,4 @@
 | 2025-12-28 | Engineering | Task 2.0 completed - Schema and migrations (done with Task 1.0) |
 | 2025-12-28 | Engineering | Task 3.0 completed - VectorService implementation |
 | 2025-12-28 | Engineering | Task 4.0 completed - Embedding pipeline with BullMQ |
+| 2025-12-28 | Engineering | Task 5.0 completed - Similarity Search API with A/B testing and analytics |

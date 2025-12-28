@@ -3,10 +3,12 @@ import { ConfigModule } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
 import { PrismaModule } from '../common/prisma';
 import { VectorController } from './vector.controller';
+import { SimilarityAnalyticsController } from './similarity-analytics.controller';
 import { VectorService } from './vector.service';
 import { EmbeddingService } from './embedding.service';
 import { VectorStorageService } from './vector-storage.service';
 import { SimilaritySearchService } from './similarity-search.service';
+import { SimilarityAnalyticsService } from './similarity-analytics.service';
 
 /**
  * Vector Module for semantic search and embeddings
@@ -16,6 +18,7 @@ import { SimilaritySearchService } from './similarity-search.service';
  * - Vector storage in PostgreSQL with pgvector
  * - Similarity search and hybrid search
  * - Personalized recommendations
+ * - Similarity analytics and A/B testing
  */
 @Module({
   imports: [
@@ -26,18 +29,20 @@ import { SimilaritySearchService } from './similarity-search.service';
       max: 1000, // Maximum number of items in cache
     }),
   ],
-  controllers: [VectorController],
+  controllers: [VectorController, SimilarityAnalyticsController],
   providers: [
     VectorService,
     EmbeddingService,
     VectorStorageService,
     SimilaritySearchService,
+    SimilarityAnalyticsService,
   ],
   exports: [
     VectorService,
     EmbeddingService,
     VectorStorageService,
     SimilaritySearchService,
+    SimilarityAnalyticsService,
   ],
 })
 export class VectorModule {}

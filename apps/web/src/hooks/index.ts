@@ -7,3 +7,5 @@ export {
   useFeatureAccess,
   useUsageStats,
 } from './useSubscription';
+export { useSimilarProducts } from './useSimilarProducts';
+export type { UseSimilarProductsOptions, UseSimilarProductsResult, RecommendationVariant } from './useSimilarProducts';
