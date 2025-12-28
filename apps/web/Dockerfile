@@ -30,6 +30,9 @@ COPY . .
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Generate Prisma client (in case types are needed)
+RUN yarn db:generate
+
 # Build Next.js application using Nx
 RUN yarn nx build web --prod
 

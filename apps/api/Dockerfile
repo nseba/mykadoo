@@ -33,6 +33,9 @@ COPY apps/api ./apps/api
 # Set environment to production
 ENV NODE_ENV=production
 
+# Generate Prisma client before building
+RUN yarn db:generate
+
 # Build NestJS application using Nx
 RUN yarn nx build api --prod
 
