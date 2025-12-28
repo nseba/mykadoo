@@ -61,25 +61,29 @@ describe('Card', () => {
   describe('Padding', () => {
     it('should render with no padding', () => {
       const { container } = render(<Card padding="none">No Padding</Card>);
-      const content = container.querySelector('div > div');
+      const card = container.firstChild as HTMLElement;
+      const content = card.querySelector(':scope > div');
       expect(content).not.toHaveClass('p-3', 'p-4', 'p-6');
     });
 
     it('should render with small padding', () => {
       const { container } = render(<Card padding="sm">Small Padding</Card>);
-      const content = container.querySelector('div > div');
+      const card = container.firstChild as HTMLElement;
+      const content = card.querySelector(':scope > div');
       expect(content).toHaveClass('p-3');
     });
 
     it('should render with medium padding by default', () => {
       const { container } = render(<Card>Medium Padding</Card>);
-      const content = container.querySelector('div > div');
+      const card = container.firstChild as HTMLElement;
+      const content = card.querySelector(':scope > div');
       expect(content).toHaveClass('p-4');
     });
 
     it('should render with large padding', () => {
       const { container } = render(<Card padding="lg">Large Padding</Card>);
-      const content = container.querySelector('div > div');
+      const card = container.firstChild as HTMLElement;
+      const content = card.querySelector(':scope > div');
       expect(content).toHaveClass('p-6');
     });
   });

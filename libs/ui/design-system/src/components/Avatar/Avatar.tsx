@@ -100,6 +100,7 @@ export const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
         {/* Status indicator */}
         {status && (
           <span
+            role="status"
             className={cn(
               'absolute bottom-0 right-0 rounded-full border-2 border-white',
               statusColors[status],

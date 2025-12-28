@@ -78,7 +78,8 @@ describe('Slider', () => {
     it('handles disabled state', () => {
       render(<Slider disabled />);
       const slider = screen.getByRole('slider');
-      expect(slider).toBeDisabled();
+      // Radix Slider uses data-disabled attribute instead of HTML disabled
+      expect(slider).toHaveAttribute('data-disabled');
     });
 
     it('applies disabled styles to label', () => {
@@ -90,7 +91,8 @@ describe('Slider', () => {
     it('applies disabled opacity to track', () => {
       const { container } = render(<Slider disabled />);
       const track = container.querySelector('[data-disabled]');
-      expect(track).toHaveClass('disabled:opacity-50');
+      // When disabled, opacity-50 is applied directly (not as pseudo-class)
+      expect(track).toHaveClass('opacity-50');
     });
   });
 
@@ -260,27 +262,31 @@ describe('Slider', () => {
     });
 
     it('generates unique IDs when not provided', () => {
-      render(
+      const { container } = render(
         <>
           <Slider label="Slider 1" />
           <Slider label="Slider 2" />
         </>
       );
 
-      const slider1 = screen.getAllByRole('slider')[0];
-      const slider2 = screen.getAllByRole('slider')[1];
+      // Radix Slider applies ID to the root, not the thumb
+      // Check that labels have unique htmlFor attributes
+      const labels = container.querySelectorAll('label');
+      const htmlFor1 = labels[0]?.getAttribute('for');
+      const htmlFor2 = labels[1]?.getAttribute('for');
 
-      expect(slider1.id).toBeTruthy();
-      expect(slider2.id).toBeTruthy();
-      expect(slider1.id).not.toBe(slider2.id);
+      expect(htmlFor1).toBeTruthy();
+      expect(htmlFor2).toBeTruthy();
+      expect(htmlFor1).not.toBe(htmlFor2);
     });
   });
 
   describe('Custom styling', () => {
     it('applies custom className to slider root', () => {
       const { container } = render(<Slider className="custom-slider" />);
-      const sliderRoot = container.querySelector('[role="slider"]')?.parentElement;
-      expect(sliderRoot).toHaveClass('custom-slider');
+      // className is applied to the Radix Slider root element
+      const sliderRoot = container.querySelector('.custom-slider');
+      expect(sliderRoot).toBeInTheDocument();
     });
   });
 });

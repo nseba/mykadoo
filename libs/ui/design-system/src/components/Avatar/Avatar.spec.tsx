@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { Avatar, AvatarGroup } from './Avatar';
 
@@ -32,19 +32,24 @@ describe('Avatar', () => {
 
     it('should uppercase fallback text', () => {
       render(<Avatar fallback="ab" />);
-      const fallback = screen.getByText('AB');
+      // CSS uppercase transforms display but not DOM text
+      const fallback = screen.getByText('ab');
       expect(fallback).toHaveClass('uppercase');
     });
   });
 
   describe('Image Error Handling', () => {
     it('should show fallback when image fails to load', async () => {
-      render(<Avatar src="invalid-url" fallback="FB" />);
+      const { container } = render(<Avatar src="invalid-url" fallback="FB" />);
 
-      const img = screen.getByRole('img');
+      // Image with empty alt has role="presentation", so use querySelector
+      const img = container.querySelector('img');
+      expect(img).toBeInTheDocument();
 
-      // Trigger image error
-      img.dispatchEvent(new Event('error'));
+      // Trigger image error wrapped in act
+      await act(async () => {
+        img!.dispatchEvent(new Event('error'));
+      });
 
       await waitFor(() => {
         expect(screen.getByText('FB')).toBeInTheDocument();
@@ -55,7 +60,10 @@ describe('Avatar', () => {
       render(<Avatar src="invalid-url" alt="User" />);
 
       const img = screen.getByRole('img');
-      img.dispatchEvent(new Event('error'));
+
+      await act(async () => {
+        img.dispatchEvent(new Event('error'));
+      });
 
       await waitFor(() => {
         expect(screen.getByText('U')).toBeInTheDocument();

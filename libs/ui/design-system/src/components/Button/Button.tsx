@@ -133,30 +133,41 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       rightIcon,
       disabled,
       children,
+      type = 'button',
       ...props
     },
     ref
   ) => {
-    const Comp = asChild ? Slot : 'button';
-
     const isDisabled = disabled || loading;
 
+    const buttonClasses = cn(
+      // Base styles
+      'inline-flex items-center justify-center gap-2 rounded-lg font-semibold',
+      'transition-all duration-200',
+      'focus:outline-none focus:ring-2 focus:ring-offset-2',
+      'disabled:opacity-50 disabled:cursor-not-allowed',
+      // Variant styles
+      buttonVariants.variant[variant],
+      // Size styles
+      buttonVariants.size[size],
+      // Custom className
+      className
+    );
+
+    // When asChild is true, render the child directly with merged props
+    if (asChild) {
+      return (
+        <Slot ref={ref} className={buttonClasses} {...props}>
+          {children}
+        </Slot>
+      );
+    }
+
     return (
-      <Comp
+      <button
         ref={ref}
-        className={cn(
-          // Base styles
-          'inline-flex items-center justify-center gap-2 rounded-lg font-semibold',
-          'transition-all duration-200',
-          'focus:outline-none focus:ring-2 focus:ring-offset-2',
-          'disabled:opacity-50 disabled:cursor-not-allowed',
-          // Variant styles
-          buttonVariants.variant[variant],
-          // Size styles
-          buttonVariants.size[size],
-          // Custom className
-          className
-        )}
+        type={type}
+        className={buttonClasses}
         disabled={isDisabled}
         {...props}
       >
@@ -164,7 +175,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {!loading && leftIcon && <span className="inline-flex shrink-0">{leftIcon}</span>}
         {children}
         {!loading && rightIcon && <span className="inline-flex shrink-0">{rightIcon}</span>}
-      </Comp>
+      </button>
     );
   }
 );

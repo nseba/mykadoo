@@ -147,9 +147,14 @@ export const Slider = React.forwardRef<
           <SliderPrimitive.Track className="relative bg-neutral-200 grow rounded-full h-2">
             <SliderPrimitive.Range className="absolute bg-primary-500 rounded-full h-full" />
           </SliderPrimitive.Track>
-          {currentValue.map((_, index) => (
+          {currentValue.map((val, index) => (
             <SliderPrimitive.Thumb
               key={index}
+              aria-label={
+                currentValue.length === 1
+                  ? label || 'Slider value'
+                  : `${label || 'Range'} ${index === 0 ? 'minimum' : 'maximum'}`
+              }
               className={cn(
                 'block w-5 h-5 bg-white border-2 border-primary-500 rounded-full shadow-sm',
                 'transition-colors duration-200',
