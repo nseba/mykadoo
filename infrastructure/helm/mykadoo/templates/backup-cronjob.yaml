@@ -1,0 +1,268 @@
+{{- if .Values.backup.enabled }}
+---
+# ConfigMap for backup scripts
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "mykadoo.fullname" . }}-backup-scripts
+  labels:
+    {{- include "mykadoo.labels" . | nindent 4 }}
+data:
+  backup-postgresql.sh: |
+{{ .Files.Get "scripts/backup-postgresql.sh" | indent 4 }}
+  restore-postgresql.sh: |
+{{ .Files.Get "scripts/restore-postgresql.sh" | indent 4 }}
+  verify-backup.sh: |
+{{ .Files.Get "scripts/verify-backup.sh" | indent 4 }}
+---
+# Daily Database Backup CronJob
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "mykadoo.fullname" . }}-db-backup
+  labels:
+    {{- include "mykadoo.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backup
+spec:
+  schedule: {{ .Values.backup.database.schedule | quote }}
+  timeZone: {{ .Values.backup.timezone | default "UTC" | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: {{ .Values.backup.successfulJobsHistoryLimit | default 3 }}
+  failedJobsHistoryLimit: {{ .Values.backup.failedJobsHistoryLimit | default 3 }}
+  startingDeadlineSeconds: 300
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      activeDeadlineSeconds: 3600
+      template:
+        metadata:
+          labels:
+            {{- include "mykadoo.labels" . | nindent 12 }}
+            app.kubernetes.io/component: backup
+        spec:
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          restartPolicy: OnFailure
+          serviceAccountName: {{ include "mykadoo.fullname" . }}-backup
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            fsGroup: 1000
+          containers:
+            - name: backup
+              image: {{ .Values.backup.image.repository }}:{{ .Values.backup.image.tag }}
+              imagePullPolicy: {{ .Values.backup.image.pullPolicy | default "IfNotPresent" }}
+              command:
+                - /bin/bash
+                - /scripts/backup-postgresql.sh
+              env:
+                - name: PGHOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "mykadoo.fullname" . }}-db-credentials
+                      key: host
+                - name: PGPORT
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "mykadoo.fullname" . }}-db-credentials
+                      key: port
+                - name: PGDATABASE
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "mykadoo.fullname" . }}-db-credentials
+                      key: database
+                - name: PGUSER
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "mykadoo.fullname" . }}-db-credentials
+                      key: username
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "mykadoo.fullname" . }}-db-credentials
+                      key: password
+                - name: BACKUP_TYPE
+                  value: {{ .Values.backup.database.type | default "full" | quote }}
+                - name: BACKUP_RETENTION_DAYS
+                  value: {{ .Values.backup.database.retentionDays | default 30 | quote }}
+                - name: S3_BUCKET
+                  value: {{ .Values.backup.s3.bucket | quote }}
+                - name: S3_PREFIX
+                  value: {{ .Values.backup.s3.prefix | default "database" | quote }}
+                - name: S3_ENDPOINT
+                  value: {{ .Values.backup.s3.endpoint | default "" | quote }}
+                - name: ENVIRONMENT
+                  value: {{ .Values.global.environment | quote }}
+                {{- if .Values.backup.encryption.enabled }}
+                - name: BACKUP_ENCRYPTION_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "mykadoo.fullname" . }}-backup-secrets
+                      key: encryption-key
+                {{- end }}
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "mykadoo.fullname" . }}-backup-secrets
+                      key: aws-access-key-id
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "mykadoo.fullname" . }}-backup-secrets
+                      key: aws-secret-access-key
+                - name: AWS_DEFAULT_REGION
+                  value: {{ .Values.backup.s3.region | default "us-east-1" | quote }}
+              volumeMounts:
+                - name: scripts
+                  mountPath: /scripts
+                  readOnly: true
+              resources:
+                {{- toYaml .Values.backup.resources | nindent 16 }}
+          volumes:
+            - name: scripts
+              configMap:
+                name: {{ include "mykadoo.fullname" . }}-backup-scripts
+                defaultMode: 0755
+---
+# Weekly Backup Verification CronJob
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "mykadoo.fullname" . }}-backup-verify
+  labels:
+    {{- include "mykadoo.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backup-verification
+spec:
+  schedule: {{ .Values.backup.verification.schedule | quote }}
+  timeZone: {{ .Values.backup.timezone | default "UTC" | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: {{ .Values.backup.successfulJobsHistoryLimit | default 3 }}
+  failedJobsHistoryLimit: {{ .Values.backup.failedJobsHistoryLimit | default 3 }}
+  startingDeadlineSeconds: 600
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 7200
+      template:
+        metadata:
+          labels:
+            {{- include "mykadoo.labels" . | nindent 12 }}
+            app.kubernetes.io/component: backup-verification
+        spec:
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          restartPolicy: OnFailure
+          serviceAccountName: {{ include "mykadoo.fullname" . }}-backup
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            fsGroup: 1000
+          containers:
+            - name: verify
+              image: {{ .Values.backup.image.repository }}:{{ .Values.backup.image.tag }}
+              imagePullPolicy: {{ .Values.backup.image.pullPolicy | default "IfNotPresent" }}
+              command:
+                - /bin/bash
+                - /scripts/verify-backup.sh
+              env:
+                - name: PGHOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "mykadoo.fullname" . }}-db-credentials
+                      key: host
+                - name: PGPORT
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "mykadoo.fullname" . }}-db-credentials
+                      key: port
+                - name: PGDATABASE
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "mykadoo.fullname" . }}-db-credentials
+                      key: database
+                - name: PGUSER
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "mykadoo.fullname" . }}-db-credentials
+                      key: username
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "mykadoo.fullname" . }}-db-credentials
+                      key: password
+                - name: S3_BUCKET
+                  value: {{ .Values.backup.s3.bucket | quote }}
+                - name: S3_PREFIX
+                  value: {{ .Values.backup.s3.prefix | default "database" | quote }}
+                - name: S3_ENDPOINT
+                  value: {{ .Values.backup.s3.endpoint | default "" | quote }}
+                - name: ENVIRONMENT
+                  value: {{ .Values.global.environment | quote }}
+                {{- if .Values.backup.encryption.enabled }}
+                - name: BACKUP_ENCRYPTION_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "mykadoo.fullname" . }}-backup-secrets
+                      key: encryption-key
+                {{- end }}
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "mykadoo.fullname" . }}-backup-secrets
+                      key: aws-access-key-id
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "mykadoo.fullname" . }}-backup-secrets
+                      key: aws-secret-access-key
+                - name: AWS_DEFAULT_REGION
+                  value: {{ .Values.backup.s3.region | default "us-east-1" | quote }}
+                {{- if .Values.backup.notifications.slack.enabled }}
+                - name: SLACK_WEBHOOK
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "mykadoo.fullname" . }}-backup-secrets
+                      key: slack-webhook
+                {{- end }}
+              volumeMounts:
+                - name: scripts
+                  mountPath: /scripts
+                  readOnly: true
+              resources:
+                {{- toYaml .Values.backup.resources | nindent 16 }}
+          volumes:
+            - name: scripts
+              configMap:
+                name: {{ include "mykadoo.fullname" . }}-backup-scripts
+                defaultMode: 0755
+---
+# ServiceAccount for backup jobs
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "mykadoo.fullname" . }}-backup
+  labels:
+    {{- include "mykadoo.labels" . | nindent 4 }}
+---
+# Secret for backup credentials (placeholder - should be created externally)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "mykadoo.fullname" . }}-backup-secrets
+  labels:
+    {{- include "mykadoo.labels" . | nindent 4 }}
+type: Opaque
+stringData:
+  aws-access-key-id: {{ .Values.backup.s3.accessKeyId | default "CHANGE_ME" | quote }}
+  aws-secret-access-key: {{ .Values.backup.s3.secretAccessKey | default "CHANGE_ME" | quote }}
+  {{- if .Values.backup.encryption.enabled }}
+  encryption-key: {{ .Values.backup.encryption.key | default "CHANGE_ME" | quote }}
+  {{- end }}
+  {{- if .Values.backup.notifications.slack.enabled }}
+  slack-webhook: {{ .Values.backup.notifications.slack.webhookUrl | default "" | quote }}
+  {{- end }}
+{{- end }}

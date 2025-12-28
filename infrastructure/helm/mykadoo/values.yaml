@@ -188,6 +188,60 @@ serviceMonitor:
   interval: 30s
   scrapeTimeout: 10s
 
+# Backup configuration
+backup:
+  enabled: true
+  timezone: "UTC"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+
+  # Backup container image (includes pg_dump, aws-cli, openssl)
+  image:
+    repository: postgres
+    tag: "16-alpine"
+    pullPolicy: IfNotPresent
+
+  # Database backup settings
+  database:
+    # Daily backup at 2:00 AM UTC
+    schedule: "0 2 * * *"
+    type: full
+    retentionDays: 30
+
+  # Backup verification settings
+  verification:
+    # Weekly verification on Sunday at 3:00 AM UTC
+    schedule: "0 3 * * 0"
+
+  # S3 storage configuration
+  s3:
+    bucket: "mykadoo-backups"
+    prefix: "database"
+    region: "us-east-1"
+    endpoint: ""  # For S3-compatible storage (MinIO, etc.)
+    accessKeyId: ""  # Set via external secret
+    secretAccessKey: ""  # Set via external secret
+
+  # Encryption settings
+  encryption:
+    enabled: true
+    key: ""  # Set via external secret
+
+  # Notification settings
+  notifications:
+    slack:
+      enabled: false
+      webhookUrl: ""  # Set via external secret
+
+  # Resource limits for backup jobs
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
 # Node selector, tolerations, and affinity
 nodeSelector: {}
 tolerations: []

@@ -146,3 +146,48 @@ podDisruptionBudget:
 # Environment variables
 env:
   NODE_ENV: production
+
+# Production backup configuration
+backup:
+  enabled: true
+  timezone: "UTC"
+
+  # Use custom backup image with all required tools
+  image:
+    repository: ghcr.io/mykadoo/backup-tools
+    tag: "1.0.0"
+
+  # Database backup settings - more aggressive for production
+  database:
+    # Daily backup at 2:00 AM UTC
+    schedule: "0 2 * * *"
+    type: full
+    retentionDays: 90  # 90 days retention for production
+
+  # Backup verification - weekly
+  verification:
+    schedule: "0 3 * * 0"
+
+  # S3 storage configuration
+  s3:
+    bucket: "mykadoo-production-backups"
+    prefix: "database"
+    region: "us-east-1"
+
+  # Encryption enabled for production
+  encryption:
+    enabled: true
+
+  # Slack notifications enabled
+  notifications:
+    slack:
+      enabled: true
+
+  # More resources for production backups
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
