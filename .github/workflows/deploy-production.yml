@@ -29,12 +29,29 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Check if secrets are configured
+  check-secrets:
+    name: Check Kubernetes Config
+    runs-on: ubuntu-latest
+    outputs:
+      has-secrets: ${{ steps.check.outputs.has-secrets }}
+    steps:
+      - name: Check for Kubernetes config
+        id: check
+        run: |
+          if [[ -n "${{ secrets.KUBE_CONFIG_PRODUCTION }}" ]]; then
+            echo "has-secrets=true" >> $GITHUB_OUTPUT
+          else
+            echo "has-secrets=false" >> $GITHUB_OUTPUT
+            echo "::warning::Kubernetes production config not configured. Skipping deployment."
+          fi
+
   # Pre-deployment checks
   pre-deploy:
     name: Pre-deployment Checks
     runs-on: ubuntu-latest
-    # Skip if Kubernetes config is not configured
-    if: ${{ secrets.KUBE_CONFIG_PRODUCTION != '' }}
+    needs: check-secrets
+    if: needs.check-secrets.outputs.has-secrets == 'true'
     outputs:
       version: ${{ steps.version.outputs.tag }}
       previous_version: ${{ steps.version.outputs.previous }}
@@ -215,9 +232,9 @@ jobs:
   # Notifications
   notify:
     name: Send Notifications
-    needs: [pre-deploy, deploy]
-    # Only run if pre-deploy ran (not skipped due to missing secrets)
-    if: ${{ always() && needs.pre-deploy.result != 'skipped' }}
+    needs: [check-secrets, pre-deploy, deploy]
+    # Only run if secrets are configured
+    if: always() && needs.check-secrets.outputs.has-secrets == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Notify Slack - Success
