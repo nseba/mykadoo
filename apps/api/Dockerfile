@@ -10,7 +10,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Copy package files
-COPY package.json yarn.lock .yarnrc.yml ./
+COPY package.json yarn.lock .yarnrc ./
 COPY .yarn ./.yarn
 
 # Install dependencies
@@ -42,7 +42,7 @@ FROM node:20-alpine AS prod-deps
 WORKDIR /app
 
 # Copy package files
-COPY package.json yarn.lock .yarnrc.yml ./
+COPY package.json yarn.lock .yarnrc ./
 COPY .yarn ./.yarn
 
 # Install production dependencies only

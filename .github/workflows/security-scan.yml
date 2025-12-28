@@ -165,7 +165,7 @@ jobs:
         with:
           project: 'mykadoo'
           path: '.'
-          format: 'HTML,JSON,SARIF'
+          format: 'SARIF'
           args: >
             --enableRetired
             --enableExperimental
