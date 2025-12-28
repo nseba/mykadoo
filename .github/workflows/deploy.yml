@@ -24,6 +24,8 @@ jobs:
   build-images:
     name: Build Docker Images
     runs-on: ubuntu-latest
+    # Skip if no kubeconfig secrets are configured (deployment wouldn't work anyway)
+    if: ${{ secrets.KUBECONFIG_STAGING != '' || secrets.KUBECONFIG_PRODUCTION != '' }}
     permissions:
       contents: read
       packages: write

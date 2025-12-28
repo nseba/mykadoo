@@ -33,6 +33,8 @@ jobs:
   pre-deploy:
     name: Pre-deployment Checks
     runs-on: ubuntu-latest
+    # Skip if Kubernetes config is not configured
+    if: ${{ secrets.KUBE_CONFIG_PRODUCTION != '' }}
     outputs:
       version: ${{ steps.version.outputs.tag }}
       previous_version: ${{ steps.version.outputs.previous }}
@@ -214,7 +216,8 @@ jobs:
   notify:
     name: Send Notifications
     needs: [pre-deploy, deploy]
-    if: always()
+    # Only run if pre-deploy ran (not skipped due to missing secrets)
+    if: ${{ always() && needs.pre-deploy.result != 'skipped' }}
     runs-on: ubuntu-latest
     steps:
       - name: Notify Slack - Success
