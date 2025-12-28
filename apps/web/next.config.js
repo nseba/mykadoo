@@ -13,8 +13,24 @@ const nextConfig = {
   // NOTE: standalone output disabled due to Nx build issues - use standard output
   // output: 'standalone',
 
+  // CDN Configuration
+  // Set assetPrefix for CDN in production
+  assetPrefix: process.env.CDN_URL || '',
+
+  // Compress responses
+  compress: true,
+
+  // Generate ETags for caching
+  generateEtags: true,
+
+  // Power optimization
+  poweredByHeader: false,
+
   // Image optimization configuration
   images: {
+    // Use CDN for image optimization in production
+    loader: process.env.CDN_URL ? 'custom' : 'default',
+    loaderFile: process.env.CDN_URL ? './src/lib/image-loader.js' : undefined,
     // Enable modern image formats
     formats: ['image/avif', 'image/webp'],
     // Remote image domains for article images
