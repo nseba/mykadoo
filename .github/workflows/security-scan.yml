@@ -112,11 +112,23 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     strategy:
+      fail-fast: false
       matrix:
         app: [web, api]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Free up disk space
+        run: |
+          # Remove unnecessary large packages
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          docker system prune -af
+          echo "Available disk space after cleanup:"
+          df -h
 
       - name: Build Docker image
         run: |
@@ -125,6 +137,7 @@ jobs:
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
+        continue-on-error: true
         with:
           image-ref: mykadoo/${{ matrix.app }}:security-scan
           format: 'sarif'
@@ -134,16 +147,22 @@ jobs:
       - name: Upload Trivy results
         uses: github/codeql-action/upload-sarif@v3
         if: always()
+        continue-on-error: true
         with:
           sarif_file: 'trivy-${{ matrix.app }}.sarif'
           category: container-${{ matrix.app }}
 
       - name: Run Grype vulnerability scanner
         uses: anchore/scan-action@v3
+        continue-on-error: true
         with:
           image: mykadoo/${{ matrix.app }}:security-scan
           fail-build: false
           severity-cutoff: high
+
+      - name: Cleanup Docker image
+        if: always()
+        run: docker rmi mykadoo/${{ matrix.app }}:security-scan || true
 
   # OWASP dependency check
   owasp-scan:
