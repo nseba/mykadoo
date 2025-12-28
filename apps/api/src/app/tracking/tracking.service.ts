@@ -117,8 +117,4 @@ export class TrackingService {
   private generateTrackingId(): string {
     return `trk_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
-
-  async onModuleDestroy() {
-    await this.prisma.$disconnect();
-  }
 }
