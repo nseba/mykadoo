@@ -26,9 +26,6 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy source code
 COPY . .
 
-# Copy Next.js app specific files
-COPY apps/web ./apps/web
-
 # Set environment to production
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -36,7 +33,19 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # Build Next.js application using Nx
 RUN yarn nx build web --prod
 
-# Stage 3: Runner (Production)
+# Stage 3: Production dependencies
+FROM node:20-alpine AS prod-deps
+
+WORKDIR /app
+
+# Copy package files
+COPY package.json yarn.lock .yarnrc ./
+COPY .yarn ./.yarn
+
+# Install production dependencies only
+RUN yarn install --frozen-lockfile --production=true
+
+# Stage 4: Runner (Production)
 FROM node:20-alpine AS runner
 
 WORKDIR /app
@@ -49,10 +58,14 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy necessary files from builder
-COPY --from=builder /app/dist/apps/web/.next/standalone ./
-COPY --from=builder /app/dist/apps/web/.next/static ./apps/web/.next/static
+# Copy production dependencies
+COPY --from=prod-deps /app/node_modules ./node_modules
+
+# Copy built application from builder (Nx outputs to apps/web/.next)
+COPY --from=builder /app/apps/web/.next ./apps/web/.next
 COPY --from=builder /app/apps/web/public ./apps/web/public
+COPY --from=builder /app/apps/web/next.config.js ./apps/web/
+COPY --from=builder /app/package.json ./
 
 # Set correct permissions
 RUN chown -R nextjs:nodejs /app
@@ -71,5 +84,5 @@ ENV HOSTNAME="0.0.0.0"
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD node -e "require('http').get('http://localhost:14000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# Start Next.js application
-CMD ["node", "apps/web/server.js"]
+# Start Next.js application using next start
+CMD ["./node_modules/.bin/next", "start", "apps/web", "-p", "14000"]
