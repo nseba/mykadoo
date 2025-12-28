@@ -1,0 +1,105 @@
+name: Rollback Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to rollback'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      revision:
+        description: 'Helm revision to rollback to (leave empty for previous)'
+        required: false
+        default: ''
+      reason:
+        description: 'Reason for rollback'
+        required: true
+
+jobs:
+  rollback:
+    name: Rollback ${{ github.event.inputs.environment }}
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.environment }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ github.event.inputs.environment == 'production' && secrets.KUBE_CONFIG_PRODUCTION || secrets.KUBE_CONFIG_STAGING }}
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '3.13.0'
+
+      - name: Get current state
+        id: current
+        run: |
+          NAMESPACE="mykadoo-${{ github.event.inputs.environment }}"
+          echo "namespace=$NAMESPACE" >> $GITHUB_OUTPUT
+
+          echo "Current deployment state:"
+          helm history mykadoo -n $NAMESPACE --max 5
+
+          CURRENT_REVISION=$(helm history mykadoo -n $NAMESPACE -o json | jq -r '.[-1].revision')
+          echo "current_revision=$CURRENT_REVISION" >> $GITHUB_OUTPUT
+
+      - name: Perform rollback
+        run: |
+          NAMESPACE="${{ steps.current.outputs.namespace }}"
+          REVISION="${{ github.event.inputs.revision }}"
+
+          if [ -z "$REVISION" ]; then
+            echo "Rolling back to previous revision..."
+            helm rollback mykadoo -n $NAMESPACE --wait --timeout 5m
+          else
+            echo "Rolling back to revision $REVISION..."
+            helm rollback mykadoo $REVISION -n $NAMESPACE --wait --timeout 5m
+          fi
+
+      - name: Verify rollback
+        run: |
+          NAMESPACE="${{ steps.current.outputs.namespace }}"
+
+          echo "Waiting for rollout to complete..."
+          kubectl rollout status deployment/mykadoo-api -n $NAMESPACE --timeout=300s
+          kubectl rollout status deployment/mykadoo-web -n $NAMESPACE --timeout=300s
+
+          echo "Rollback completed successfully"
+
+      - name: Run health checks
+        run: |
+          DOMAIN="${{ github.event.inputs.environment == 'production' && 'mykadoo.com' || 'staging.mykadoo.com' }}"
+
+          echo "Running health checks on $DOMAIN..."
+          curl -f "https://$DOMAIN/api/health" || exit 1
+          curl -f "https://$DOMAIN" || exit 1
+          echo "Health checks passed!"
+
+      - name: Record rollback
+        run: |
+          echo "=== Rollback Record ==="
+          echo "Environment: ${{ github.event.inputs.environment }}"
+          echo "From Revision: ${{ steps.current.outputs.current_revision }}"
+          echo "To Revision: ${{ github.event.inputs.revision || 'previous' }}"
+          echo "Reason: ${{ github.event.inputs.reason }}"
+          echo "Initiated by: ${{ github.actor }}"
+          echo "Time: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+      - name: Notify Slack
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          text: |
+            :warning: Rollback ${{ job.status }} for ${{ github.event.inputs.environment }}
+            Reason: ${{ github.event.inputs.reason }}
+            Initiated by: ${{ github.actor }}
