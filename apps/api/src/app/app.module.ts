@@ -14,6 +14,7 @@ import { SyncModule } from './sync/sync.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { ContentModule } from './content/content.module';
 import { SubscriptionModule } from './subscription/subscription.module';
+import { VectorModule } from './vector/vector.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { SubscriptionModule } from './subscription/subscription.module';
     AnalyticsModule,
     ContentModule,
     SubscriptionModule,
+    VectorModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],
