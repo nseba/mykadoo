@@ -48,48 +48,49 @@ describe('Modal', () => {
 
   describe('Sizes', () => {
     it('should render small size', () => {
-      const { container } = render(
+      render(
         <Modal open={true} size="sm">
           Small Modal
         </Modal>
       );
-      const content = container.querySelector('.max-w-md');
+      // Modal uses Portal, so search in document.body
+      const content = document.body.querySelector('.max-w-md');
       expect(content).toBeInTheDocument();
     });
 
     it('should render medium size by default', () => {
-      const { container } = render(<Modal open={true}>Medium Modal</Modal>);
-      const content = container.querySelector('.max-w-lg');
+      render(<Modal open={true}>Medium Modal</Modal>);
+      const content = document.body.querySelector('.max-w-lg');
       expect(content).toBeInTheDocument();
     });
 
     it('should render large size', () => {
-      const { container } = render(
+      render(
         <Modal open={true} size="lg">
           Large Modal
         </Modal>
       );
-      const content = container.querySelector('.max-w-2xl');
+      const content = document.body.querySelector('.max-w-2xl');
       expect(content).toBeInTheDocument();
     });
 
     it('should render extra large size', () => {
-      const { container } = render(
+      render(
         <Modal open={true} size="xl">
           Extra Large Modal
         </Modal>
       );
-      const content = container.querySelector('.max-w-4xl');
+      const content = document.body.querySelector('.max-w-4xl');
       expect(content).toBeInTheDocument();
     });
 
     it('should render full size', () => {
-      const { container } = render(
+      render(
         <Modal open={true} size="full">
           Full Modal
         </Modal>
       );
-      const content = container.querySelector('.max-w-full');
+      const content = document.body.querySelector('.max-w-full');
       expect(content).toBeInTheDocument();
     });
   });
@@ -129,7 +130,7 @@ describe('Modal', () => {
     });
 
     it('should render X icon in close button', () => {
-      const { container } = render(<Modal open={true}>Content</Modal>);
+      render(<Modal open={true}>Content</Modal>);
       const closeButton = screen.getByRole('button', { name: 'Close' });
       const svg = closeButton.querySelector('svg');
       expect(svg).toBeInTheDocument();
@@ -139,14 +140,14 @@ describe('Modal', () => {
 
   describe('Overlay', () => {
     it('should render overlay', () => {
-      const { container } = render(<Modal open={true}>Content</Modal>);
-      const overlay = container.querySelector('.bg-black\\/50');
+      render(<Modal open={true}>Content</Modal>);
+      const overlay = document.body.querySelector('.bg-black\\/50');
       expect(overlay).toBeInTheDocument();
     });
 
     it('should apply backdrop blur to overlay', () => {
-      const { container } = render(<Modal open={true}>Content</Modal>);
-      const overlay = container.querySelector('.backdrop-blur-sm');
+      render(<Modal open={true}>Content</Modal>);
+      const overlay = document.body.querySelector('.backdrop-blur-sm');
       expect(overlay).toBeInTheDocument();
     });
   });
@@ -198,34 +199,34 @@ describe('Modal', () => {
 
   describe('Layout', () => {
     it('should position modal in center', () => {
-      const { container } = render(<Modal open={true}>Content</Modal>);
-      const content = container.querySelector('.left-\\[50\\%\\].top-\\[50\\%\\]');
+      render(<Modal open={true}>Content</Modal>);
+      const content = document.body.querySelector('.left-\\[50\\%\\].top-\\[50\\%\\]');
       expect(content).toBeInTheDocument();
     });
 
     it('should apply correct padding to header', () => {
-      const { container } = render(
+      render(
         <Modal open={true} title="Title">
           Content
         </Modal>
       );
-      const header = container.querySelector('.px-6.pt-6.pb-4');
+      const header = document.body.querySelector('.px-6.pt-6.pb-4');
       expect(header).toBeInTheDocument();
     });
 
     it('should apply correct padding to body', () => {
-      const { container } = render(<Modal open={true}>Content</Modal>);
-      const body = container.querySelector('.px-6.py-4');
+      render(<Modal open={true}>Content</Modal>);
+      const body = document.body.querySelector('.px-6.py-4');
       expect(body).toBeInTheDocument();
     });
 
     it('should style footer with background', () => {
-      const { container } = render(
+      render(
         <Modal open={true} footer={<button>Action</button>}>
           Content
         </Modal>
       );
-      const footer = container.querySelector('.bg-neutral-50');
+      const footer = document.body.querySelector('.bg-neutral-50');
       expect(footer).toBeInTheDocument();
       expect(footer).toHaveClass('rounded-b-lg', 'border-t', 'border-neutral-200');
     });
@@ -233,15 +234,15 @@ describe('Modal', () => {
 
   describe('Animation', () => {
     it('should apply animation classes to overlay', () => {
-      const { container } = render(<Modal open={true}>Content</Modal>);
-      const overlay = container.querySelector('[data-state]');
+      render(<Modal open={true}>Content</Modal>);
+      const overlay = document.body.querySelector('[data-state]');
       expect(overlay).toHaveClass('data-[state=open]:animate-in');
       expect(overlay).toHaveClass('data-[state=closed]:animate-out');
     });
 
     it('should apply animation classes to content', () => {
-      const { container } = render(<Modal open={true}>Content</Modal>);
-      const content = container.querySelector('.duration-200');
+      render(<Modal open={true}>Content</Modal>);
+      const content = document.body.querySelector('.duration-200');
       expect(content).toHaveClass('data-[state=open]:zoom-in-95');
       expect(content).toHaveClass('data-[state=closed]:zoom-out-95');
     });

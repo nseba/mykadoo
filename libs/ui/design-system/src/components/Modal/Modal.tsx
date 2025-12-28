@@ -1,5 +1,6 @@
 import React from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { cn } from '../../utils/cn';
 
 export interface ModalProps {
@@ -95,20 +96,38 @@ export const Modal: React.FC<ModalProps> = ({
           }
           onEscapeKeyDown={closeOnEscape ? undefined : (e) => e.preventDefault()}
         >
-          {/* Header */}
-          {(title || description) && (
+          {/* Title - always required for accessibility */}
+          {title ? (
             <div className="px-6 pt-6 pb-4">
-              {title && (
-                <DialogPrimitive.Title className="text-lg font-semibold text-neutral-900">
-                  {title}
-                </DialogPrimitive.Title>
-              )}
+              <DialogPrimitive.Title className="text-lg font-semibold text-neutral-900">
+                {title}
+              </DialogPrimitive.Title>
               {description && (
                 <DialogPrimitive.Description className="text-sm text-neutral-600 mt-2">
                   {description}
                 </DialogPrimitive.Description>
               )}
             </div>
+          ) : (
+            <>
+              <VisuallyHidden>
+                <DialogPrimitive.Title>Modal</DialogPrimitive.Title>
+              </VisuallyHidden>
+              {description && (
+                <div className="px-6 pt-6 pb-4">
+                  <DialogPrimitive.Description className="text-sm text-neutral-600">
+                    {description}
+                  </DialogPrimitive.Description>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Description fallback needed to suppress Radix warning */}
+          {!description && (
+            <DialogPrimitive.Description asChild>
+              <VisuallyHidden>Modal content</VisuallyHidden>
+            </DialogPrimitive.Description>
           )}
 
           {/* Body */}

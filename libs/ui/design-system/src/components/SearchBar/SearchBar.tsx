@@ -98,21 +98,25 @@ export const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>(
       size = 'md',
       wrapperClassName,
       placeholder = 'Search...',
+      defaultValue,
+      value: controlledValue,
+      onChange,
+      onKeyDown,
       ...props
     },
     ref
   ) => {
-    const [value, setValue] = React.useState(props.value || props.defaultValue || '');
+    const [value, setValue] = React.useState(controlledValue || defaultValue || '');
 
     React.useEffect(() => {
-      if (props.value !== undefined) {
-        setValue(props.value);
+      if (controlledValue !== undefined) {
+        setValue(controlledValue);
       }
-    }, [props.value]);
+    }, [controlledValue]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setValue(e.target.value);
-      props.onChange?.(e);
+      onChange?.(e);
     };
 
     const handleSearch = () => {
@@ -121,12 +125,12 @@ export const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>(
       }
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const internalHandleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
         e.preventDefault();
         handleSearch();
       }
-      props.onKeyDown?.(e);
+      onKeyDown?.(e);
     };
 
     const sizeStyles = {
@@ -169,7 +173,7 @@ export const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>(
             placeholder={placeholder}
             value={value}
             onChange={handleChange}
-            onKeyDown={handleKeyDown}
+            onKeyDown={internalHandleKeyDown}
             {...props}
           />
 

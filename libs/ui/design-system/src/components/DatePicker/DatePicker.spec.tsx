@@ -37,19 +37,19 @@ describe('DatePicker', () => {
 
   describe('States', () => {
     it('applies default state styles', () => {
-      render(<DatePicker state="default" />);
-      const input = screen.getByRole('textbox');
+      const { container } = render(<DatePicker state="default" />);
+      const input = getDateInput(container);
       expect(input).toHaveClass('border-neutral-300');
     });
 
     it('applies error state styles', () => {
-      render(
+      const { container } = render(
         <DatePicker
           state="error"
           helperText="Please select a valid date"
         />
       );
-      const input = screen.getByRole('textbox');
+      const input = getDateInput(container);
       expect(input).toHaveClass('border-error-500');
 
       const helperText = screen.getByText('Please select a valid date');
@@ -57,10 +57,10 @@ describe('DatePicker', () => {
     });
 
     it('applies success state styles', () => {
-      render(
+      const { container } = render(
         <DatePicker state="success" helperText="Date is valid" />
       );
-      const input = screen.getByRole('textbox');
+      const input = getDateInput(container);
       expect(input).toHaveClass('border-success-500');
 
       const helperText = screen.getByText('Date is valid');
@@ -68,8 +68,8 @@ describe('DatePicker', () => {
     });
 
     it('handles disabled state', () => {
-      render(<DatePicker disabled />);
-      const input = screen.getByRole('textbox');
+      const { container } = render(<DatePicker disabled />);
+      const input = getDateInput(container);
       expect(input).toBeDisabled();
       expect(input).toHaveClass('disabled:bg-neutral-100');
     });
@@ -83,20 +83,20 @@ describe('DatePicker', () => {
 
   describe('Date constraints', () => {
     it('sets min attribute', () => {
-      render(<DatePicker min="2024-01-01" />);
-      const input = screen.getByRole('textbox');
+      const { container } = render(<DatePicker min="2024-01-01" />);
+      const input = getDateInput(container);
       expect(input).toHaveAttribute('min', '2024-01-01');
     });
 
     it('sets max attribute', () => {
-      render(<DatePicker max="2024-12-31" />);
-      const input = screen.getByRole('textbox');
+      const { container } = render(<DatePicker max="2024-12-31" />);
+      const input = getDateInput(container);
       expect(input).toHaveAttribute('max', '2024-12-31');
     });
 
     it('sets both min and max attributes', () => {
-      render(<DatePicker min="2024-01-01" max="2024-12-31" />);
-      const input = screen.getByRole('textbox');
+      const { container } = render(<DatePicker min="2024-01-01" max="2024-12-31" />);
+      const input = getDateInput(container);
       expect(input).toHaveAttribute('min', '2024-01-01');
       expect(input).toHaveAttribute('max', '2024-12-31');
     });
@@ -107,8 +107,8 @@ describe('DatePicker', () => {
       const handleChange = jest.fn();
       const user = userEvent.setup();
 
-      render(<DatePicker onChange={handleChange} />);
-      const input = screen.getByRole('textbox');
+      const { container } = render(<DatePicker onChange={handleChange} />);
+      const input = getDateInput(container);
 
       await user.type(input, '2024-03-15');
 
@@ -119,8 +119,8 @@ describe('DatePicker', () => {
       const handleChange = jest.fn();
       const user = userEvent.setup();
 
-      render(<DatePicker disabled onChange={handleChange} />);
-      const input = screen.getByRole('textbox');
+      const { container } = render(<DatePicker disabled onChange={handleChange} />);
+      const input = getDateInput(container);
 
       await user.type(input, '2024-03-15');
 
@@ -130,8 +130,8 @@ describe('DatePicker', () => {
     it('allows clearing the date value', async () => {
       const user = userEvent.setup();
 
-      render(<DatePicker defaultValue="2024-03-15" />);
-      const input = screen.getByRole('textbox') as HTMLInputElement;
+      const { container } = render(<DatePicker defaultValue="2024-03-15" />);
+      const input = getDateInput(container);
 
       expect(input.value).toBe('2024-03-15');
 
@@ -143,26 +143,26 @@ describe('DatePicker', () => {
 
   describe('Controlled/Uncontrolled', () => {
     it('supports controlled value', () => {
-      render(<DatePicker value="2024-03-15" onChange={() => {}} />);
-      const input = screen.getByRole('textbox') as HTMLInputElement;
+      const { container } = render(<DatePicker value="2024-03-15" onChange={() => {}} />);
+      const input = getDateInput(container);
       expect(input.value).toBe('2024-03-15');
     });
 
     it('supports defaultValue', () => {
-      render(<DatePicker defaultValue="2024-03-15" />);
-      const input = screen.getByRole('textbox') as HTMLInputElement;
+      const { container } = render(<DatePicker defaultValue="2024-03-15" />);
+      const input = getDateInput(container);
       expect(input.value).toBe('2024-03-15');
     });
 
     it('updates value in controlled mode', () => {
-      const { rerender } = render(
+      const { rerender, container } = render(
         <DatePicker value="2024-03-15" onChange={() => {}} />
       );
-      let input = screen.getByRole('textbox') as HTMLInputElement;
+      let input = getDateInput(container);
       expect(input.value).toBe('2024-03-15');
 
       rerender(<DatePicker value="2024-04-20" onChange={() => {}} />);
-      input = screen.getByRole('textbox') as HTMLInputElement;
+      input = getDateInput(container);
       expect(input.value).toBe('2024-04-20');
     });
   });
@@ -193,23 +193,23 @@ describe('DatePicker', () => {
     });
 
     it('associates label with input', () => {
-      render(<DatePicker label="Birth Date" id="birth-date" />);
+      const { container } = render(<DatePicker label="Birth Date" id="birth-date" />);
       const label = screen.getByText('Birth Date');
-      const input = screen.getByRole('textbox');
+      const input = getDateInput(container);
 
       expect(label).toHaveAttribute('for', 'birth-date');
       expect(input).toHaveAttribute('id', 'birth-date');
     });
 
     it('associates helper text with input', () => {
-      render(
+      const { container } = render(
         <DatePicker
           label="Date"
           helperText="Select a date"
           id="date-input"
         />
       );
-      const input = screen.getByRole('textbox');
+      const input = getDateInput(container);
       expect(input).toHaveAttribute(
         'aria-describedby',
         'date-input-helper'
@@ -217,8 +217,8 @@ describe('DatePicker', () => {
     });
 
     it('sets aria-invalid on error state', () => {
-      render(<DatePicker state="error" />);
-      const input = screen.getByRole('textbox');
+      const { container } = render(<DatePicker state="error" />);
+      const input = getDateInput(container);
       expect(input).toHaveAttribute('aria-invalid', 'true');
     });
 
@@ -241,16 +241,16 @@ describe('DatePicker', () => {
 
   describe('Required field', () => {
     it('sets required attribute', () => {
-      render(<DatePicker required />);
-      const input = screen.getByRole('textbox');
+      const { container } = render(<DatePicker required />);
+      const input = getDateInput(container);
       expect(input).toBeRequired();
     });
   });
 
   describe('Custom styling', () => {
     it('applies custom className to input', () => {
-      render(<DatePicker className="custom-date-picker" />);
-      const input = screen.getByRole('textbox');
+      const { container } = render(<DatePicker className="custom-date-picker" />);
+      const input = getDateInput(container);
       expect(input).toHaveClass('custom-date-picker');
     });
 
@@ -265,8 +265,8 @@ describe('DatePicker', () => {
 
   describe('Placeholder', () => {
     it('renders with placeholder', () => {
-      render(<DatePicker placeholder="YYYY-MM-DD" />);
-      const input = screen.getByRole('textbox');
+      const { container } = render(<DatePicker placeholder="YYYY-MM-DD" />);
+      const input = getDateInput(container);
       expect(input).toHaveAttribute('placeholder', 'YYYY-MM-DD');
     });
   });
