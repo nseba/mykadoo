@@ -123,6 +123,10 @@ model UserProfile {
   interests     String[] // Array of interest tags
   occasions     String[] // Birthdays, anniversaries, holidays, etc.
 
+  // Vector embedding for personalized recommendations (1536 dimensions)
+  // Aggregated from user's search history, favorites, and interactions
+  preferenceEmbedding Unsupported("vector(1536)")? @map("preference_embedding")
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -347,6 +351,9 @@ model Search {
   filters       Json? // Budget, category, occasion, etc.
   results       SearchResult[]
 
+  // Vector embedding for query similarity (1536 dimensions)
+  queryEmbedding Unsupported("vector(1536)")? @map("query_embedding")
+
   // AI model used
   model         String? // GPT-4, GPT-3.5, Claude Opus, etc.
   cost          Float? // Cost in USD
@@ -388,6 +395,9 @@ model Product {
   title            String
   description      String?  @db.Text
   shortDescription String?  @map("short_description") @db.Text
+
+  // Vector embedding for semantic search (1536 dimensions for OpenAI text-embedding-3-small)
+  embedding        Unsupported("vector(1536)")?
 
   // Images
   imageUrl      String?  @map("image_url")

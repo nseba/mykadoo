@@ -78,20 +78,30 @@ autoscaling:
     targetCPUUtilizationPercentage: 60
     targetMemoryUtilizationPercentage: 70
 
-# Production database configuration
+# Production database configuration with pgvector
 postgresql:
+  # Use pgvector-enabled PostgreSQL image
+  image:
+    registry: docker.io
+    repository: pgvector/pgvector
+    tag: pg16
   primary:
+    # Enable pgvector extension on database initialization
+    initdb:
+      scripts:
+        enable-pgvector.sql: |
+          CREATE EXTENSION IF NOT EXISTS vector;
     persistence:
       enabled: true
       size: 100Gi
       storageClass: "ssd" # Use fast storage
     resources:
       requests:
-        memory: "1Gi"
-        cpu: "1000m"
-      limits:
         memory: "2Gi"
         cpu: "2000m"
+      limits:
+        memory: "4Gi"
+        cpu: "4000m"
   readReplicas:
     replicaCount: 2
     persistence:
@@ -99,11 +109,21 @@ postgresql:
       size: 100Gi
     resources:
       requests:
-        memory: "1Gi"
-        cpu: "1000m"
-      limits:
         memory: "2Gi"
         cpu: "2000m"
+      limits:
+        memory: "4Gi"
+        cpu: "4000m"
+
+# pgvector configuration for production
+pgvector:
+  enabled: true
+  dimensions: 1536
+  indexType: hnsw
+  # Production-optimized HNSW parameters
+  hnsw:
+    m: 32  # More connections for production (better accuracy)
+    efConstruction: 128  # Higher build quality for production
 
 # Production Redis configuration
 redis:

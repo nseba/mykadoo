@@ -132,7 +132,17 @@ postgresql:
     username: mykadoo_user
     password: "" # Set via Secret in production
     database: mykadoo
+  # Use pgvector-enabled PostgreSQL image
+  image:
+    registry: docker.io
+    repository: pgvector/pgvector
+    tag: pg16
   primary:
+    # Enable pgvector extension on database initialization
+    initdb:
+      scripts:
+        enable-pgvector.sql: |
+          CREATE EXTENSION IF NOT EXISTS vector;
     persistence:
       enabled: true
       size: 20Gi
@@ -144,6 +154,21 @@ postgresql:
       limits:
         memory: "512Mi"
         cpu: "500m"
+
+# pgvector configuration
+pgvector:
+  enabled: true
+  # Embedding dimensions (OpenAI text-embedding-3-small uses 1536)
+  dimensions: 1536
+  # Index type: hnsw (faster, more memory) or ivfflat (efficient, less memory)
+  indexType: hnsw
+  # HNSW parameters
+  hnsw:
+    m: 16  # Number of connections per layer
+    efConstruction: 64  # Search breadth during build
+  # IVFFlat parameters
+  ivfflat:
+    lists: 100  # Number of clusters
 
 # Redis configuration (Bitnami chart)
 redis:
