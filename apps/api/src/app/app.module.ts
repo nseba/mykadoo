@@ -15,6 +15,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
 import { ContentModule } from './content/content.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { VectorModule } from './vector/vector.module';
+import { EmbeddingPipelineModule } from './embedding-pipeline/embedding-pipeline.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { VectorModule } from './vector/vector.module';
     ContentModule,
     SubscriptionModule,
     VectorModule,
+    EmbeddingPipelineModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],

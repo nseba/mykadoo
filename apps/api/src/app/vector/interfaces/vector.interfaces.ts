@@ -122,6 +122,8 @@ export interface ProductWithEmbedding {
   id: string;
   title: string;
   description: string | null;
+  category: string | null;
+  tags: string[];
   embedding: Embedding | null;
   hasEmbedding: boolean;
 }

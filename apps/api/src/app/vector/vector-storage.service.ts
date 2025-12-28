@@ -134,9 +134,15 @@ export class VectorStorageService {
   async getProductsWithoutEmbeddings(limit = 100): Promise<ProductWithEmbedding[]> {
     try {
       const products = await this.prisma.$queryRaw<
-        Array<{ id: string; title: string; description: string | null }>
+        Array<{
+          id: string;
+          title: string;
+          description: string | null;
+          category: string | null;
+          tags: string[] | null;
+        }>
       >`
-        SELECT id, title, description
+        SELECT id, title, description, category, tags
         FROM products
         WHERE embedding IS NULL AND is_active = true
         ORDER BY created_at DESC
@@ -144,7 +150,11 @@ export class VectorStorageService {
       `;
 
       return products.map(p => ({
-        ...p,
+        id: p.id,
+        title: p.title,
+        description: p.description,
+        category: p.category,
+        tags: p.tags || [],
         embedding: null,
         hasEmbedding: false,
       }));
