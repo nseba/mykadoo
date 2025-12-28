@@ -1,3 +1,8 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
 interface NavLink {
   label: string;
   href: string;
@@ -10,6 +15,15 @@ const navLinks: NavLink[] = [
 ];
 
 export function Header() {
+  const pathname = usePathname();
+
+  const isActive = (href: string) => {
+    if (href === '/') {
+      return pathname === '/';
+    }
+    return pathname.startsWith(href);
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <nav
@@ -18,42 +32,46 @@ export function Header() {
         aria-label="Main navigation"
       >
         {/* Logo */}
-        <a
+        <Link
           href="/"
           className="flex items-center gap-2 text-2xl font-bold transition-colors hover:opacity-80"
           style={{ color: '#FF6B6B' }}
         >
           Mykadoo
-        </a>
+        </Link>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex md:items-center md:gap-8">
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              className={`text-sm font-medium transition-colors ${
+                isActive(link.href)
+                  ? 'text-[#FF6B6B] border-b-2 border-[#FF6B6B] pb-1'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </div>
 
         {/* Actions (Desktop) */}
         <div className="hidden md:flex md:items-center md:gap-4">
-          <a
+          <Link
             href="/login"
             className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
           >
             Log in
-          </a>
-          <a
+          </Link>
+          <Link
             href="/signup"
             className="rounded-full px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:opacity-90"
             style={{ backgroundColor: '#FF6B6B' }}
           >
             Sign up
-          </a>
+          </Link>
         </div>
 
         {/* Mobile Menu - CSS-only using details/summary */}
@@ -88,29 +106,33 @@ export function Header() {
           <div className="absolute right-0 top-full mt-2 w-64 origin-top-right rounded-lg border border-gray-200 bg-white shadow-lg ring-1 ring-black ring-opacity-5">
             <div className="py-2">
               {navLinks.map((link) => (
-                <a
+                <Link
                   key={link.href}
                   href={link.href}
-                  className="block px-4 py-2 text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                  className={`block px-4 py-2 text-base font-medium transition-colors ${
+                    isActive(link.href)
+                      ? 'text-[#FF6B6B] bg-gray-50'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  }`}
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
               <div className="border-t border-gray-200 mt-2 pt-2">
-                <a
+                <Link
                   href="/login"
                   className="block px-4 py-2 text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                 >
                   Log in
-                </a>
+                </Link>
                 <div className="px-4 py-2">
-                  <a
+                  <Link
                     href="/signup"
                     className="block rounded-full px-4 py-2 text-center text-base font-semibold text-white shadow-sm transition-colors hover:opacity-90"
                     style={{ backgroundColor: '#FF6B6B' }}
                   >
                     Sign up
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
