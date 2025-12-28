@@ -142,7 +142,7 @@ export function AffiliateDisclosurePage() {
         <ul className="list-disc list-inside text-gray-700 space-y-2 mb-4">
           <li>
             You pay the <strong>same price</strong> as you would if you went
-            directly to the merchant's website.
+            directly to the merchant&apos;s website.
           </li>
           <li>
             We earn a small commission from the merchant (not from you).
