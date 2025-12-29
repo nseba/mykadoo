@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { SubscriptionPlan, createCheckoutSession } from '../../lib/subscription';
 
@@ -21,6 +21,42 @@ export function UpgradeModal({
 }: UpgradeModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const previousActiveElement = useRef<HTMLElement | null>(null);
+
+  // Handle escape key
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      onClose();
+    }
+  }, [onClose]);
+
+  // Focus management and escape key handler
+  useEffect(() => {
+    if (isOpen) {
+      // Store the previously focused element
+      previousActiveElement.current = document.activeElement as HTMLElement;
+
+      // Add escape key listener
+      document.addEventListener('keydown', handleKeyDown);
+
+      // Focus the modal
+      modalRef.current?.focus();
+
+      // Prevent body scroll
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+
+      // Return focus to previously focused element
+      if (previousActiveElement.current && !isOpen) {
+        previousActiveElement.current.focus();
+      }
+    };
+  }, [isOpen, handleKeyDown]);
 
   if (!isOpen) return null;
 
@@ -41,9 +77,27 @@ export function UpgradeModal({
     }
   };
 
+  const modalTitleId = 'upgrade-modal-title';
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      role="presentation"
+      onClick={(e) => {
+        // Close on backdrop click
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={modalTitleId}
+        tabIndex={-1}
+        className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl focus:outline-none"
+      >
         <div className="flex items-start justify-between">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-coral-100">
             <svg
@@ -51,6 +105,7 @@ export function UpgradeModal({
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -62,9 +117,10 @@ export function UpgradeModal({
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            aria-label="Close modal"
+            className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:ring-2 focus:ring-coral-500 focus:ring-offset-2"
           >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -75,7 +131,7 @@ export function UpgradeModal({
           </button>
         </div>
 
-        <h2 className="mt-4 text-xl font-bold text-gray-900">
+        <h2 id={modalTitleId} className="mt-4 text-xl font-bold text-gray-900">
           Upgrade to Unlock {feature ? `${feature}` : 'More Features'}
         </h2>
 

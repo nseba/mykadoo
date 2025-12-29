@@ -12,6 +12,33 @@
   body {
     @apply antialiased;
   }
+
+  /* Accessible focus indicators - visible for keyboard users only */
+  *:focus {
+    outline: none;
+  }
+
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-coral-500;
+    outline-style: solid;
+  }
+
+  /* Enhanced focus for interactive elements */
+  a:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    @apply ring-2 ring-coral-500 ring-offset-2;
+    outline: none;
+  }
+
+  /* High contrast focus for dark backgrounds */
+  .dark a:focus-visible,
+  .dark button:focus-visible {
+    @apply ring-white ring-offset-gray-900;
+  }
 }
 
 /* Custom component styles */

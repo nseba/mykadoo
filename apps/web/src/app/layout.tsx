@@ -112,13 +112,21 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
       </head>
       <body className={`${inter.className} antialiased`}>
-        {/* Skip to content link for accessibility */}
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow-lg focus:ring-2 focus:ring-coral-500 focus:text-coral-600"
-        >
-          Skip to main content
-        </a>
+        {/* Skip links for accessibility */}
+        <div className="skip-links">
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow-lg focus:ring-2 focus:ring-coral-500 focus:text-coral-600"
+          >
+            Skip to main content
+          </a>
+          <a
+            href="#main-navigation"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-48 focus:z-[100] focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow-lg focus:ring-2 focus:ring-coral-500 focus:text-coral-600"
+          >
+            Skip to navigation
+          </a>
+        </div>
         <Header />
         <main id="main-content" role="main" className="min-h-screen">
           {children}
