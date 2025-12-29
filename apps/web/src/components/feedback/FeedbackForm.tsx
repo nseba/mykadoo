@@ -84,7 +84,11 @@ export const FeedbackForm: React.FC<FeedbackFormProps> = ({
 
   if (success) {
     return (
-      <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+      <div
+        role="alert"
+        aria-live="polite"
+        className="bg-green-50 border border-green-200 rounded-lg p-6 text-center"
+      >
         <div className="text-green-600 text-lg font-medium mb-2">
           Thank you for your feedback!
         </div>
@@ -102,11 +106,12 @@ export const FeedbackForm: React.FC<FeedbackFormProps> = ({
       </h3>
 
       {/* Action Selection */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          What did you do? <span className="text-red-500">*</span>
-        </label>
-        <div className="grid grid-cols-2 gap-2">
+      <fieldset className="mb-4">
+        <legend className="block text-sm font-medium text-gray-700 mb-2">
+          What did you do? <span className="text-red-500" aria-hidden="true">*</span>
+          <span className="sr-only">(required)</span>
+        </legend>
+        <div className="grid grid-cols-2 gap-2" role="group" aria-required="true">
           {[
             { value: 'LIKED', label: 'Loved it!' },
             { value: 'DISLIKED', label: "Not for me" },
@@ -117,6 +122,7 @@ export const FeedbackForm: React.FC<FeedbackFormProps> = ({
               key={option.value}
               type="button"
               onClick={() => setFormData({ ...formData, action: option.value as any })}
+              aria-pressed={formData.action === option.value}
               className={`
                 px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all
                 ${
@@ -130,18 +136,21 @@ export const FeedbackForm: React.FC<FeedbackFormProps> = ({
             </button>
           ))}
         </div>
-      </div>
+      </fieldset>
 
       {/* Rating */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+      <fieldset className="mb-4">
+        <legend id="rating-label" className="block text-sm font-medium text-gray-700 mb-2">
           Rate this recommendation (optional)
-        </label>
-        <div className="flex gap-1">
+        </legend>
+        <div className="flex gap-1" role="radiogroup" aria-labelledby="rating-label">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
               key={star}
               type="button"
+              role="radio"
+              aria-checked={formData.rating === star}
+              aria-label={`${star} star${star > 1 ? 's' : ''}`}
               onClick={() => setFormData({ ...formData, rating: star })}
               className="transition-transform hover:scale-110"
             >
@@ -154,6 +163,7 @@ export const FeedbackForm: React.FC<FeedbackFormProps> = ({
                 viewBox="0 0 24 24"
                 stroke="currentColor"
                 strokeWidth={1.5}
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -164,29 +174,35 @@ export const FeedbackForm: React.FC<FeedbackFormProps> = ({
             </button>
           ))}
         </div>
-      </div>
+      </fieldset>
 
       {/* Comment */}
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="feedback-comment" className="block text-sm font-medium text-gray-700 mb-2">
           Additional comments (optional)
         </label>
         <textarea
+          id="feedback-comment"
           value={formData.comment || ''}
           onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
           rows={3}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-coral-500 focus:border-transparent"
           placeholder="Tell us more about your experience..."
+          aria-describedby="comment-hint"
         />
+        <p id="comment-hint" className="sr-only">
+          Share any additional thoughts about this gift recommendation
+        </p>
       </div>
 
       {/* Context Fields */}
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="feedback-occasion" className="block text-sm font-medium text-gray-700 mb-2">
             Occasion (optional)
           </label>
           <input
+            id="feedback-occasion"
             type="text"
             value={formData.occasion || ''}
             onChange={(e) => setFormData({ ...formData, occasion: e.target.value })}
@@ -195,10 +211,11 @@ export const FeedbackForm: React.FC<FeedbackFormProps> = ({
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="feedback-relationship" className="block text-sm font-medium text-gray-700 mb-2">
             Relationship (optional)
           </label>
           <input
+            id="feedback-relationship"
             type="text"
             value={formData.relationship || ''}
             onChange={(e) =>
@@ -212,7 +229,11 @@ export const FeedbackForm: React.FC<FeedbackFormProps> = ({
 
       {/* Error Message */}
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"
+        >
           {error}
         </div>
       )}
