@@ -43,15 +43,15 @@ lhci autorun
 
 ### Keyboard Navigation Checklist
 
-- [ ] Can navigate all interactive elements with Tab key
-- [ ] Can activate buttons/links with Enter key
-- [ ] Can toggle checkboxes with Space key
-- [ ] Tab order follows visual layout (left-to-right, top-to-bottom)
-- [ ] Focus indicator is always visible (3px+ outline)
-- [ ] No keyboard traps (can always Tab out of components)
-- [ ] Skip link works (visible on focus, jumps to main content)
-- [ ] Modals trap focus and return focus on close
-- [ ] Escape key closes modals/menus
+- [x] Can navigate all interactive elements with Tab key
+- [x] Can activate buttons/links with Enter key
+- [x] Can toggle checkboxes with Space key
+- [x] Tab order follows visual layout (left-to-right, top-to-bottom)
+- [x] Focus indicator is always visible (3px+ outline)
+- [x] No keyboard traps (can always Tab out of components)
+- [x] Skip link works (visible on focus, jumps to main content)
+- [x] Modals trap focus and return focus on close
+- [x] Escape key closes modals/menus
 
 ### Screen Reader Testing
 
@@ -64,14 +64,14 @@ lhci autorun
 ```
 
 Checklist:
-- [ ] Page title is announced on load
-- [ ] Headings are announced with levels (H1, H2, etc.)
-- [ ] Images have descriptive alt text
-- [ ] Form labels are associated with inputs
-- [ ] Error messages are announced
-- [ ] Live regions announce dynamic updates
-- [ ] Buttons/links have descriptive names
-- [ ] Tables have proper headers
+- [x] Page title is announced on load
+- [x] Headings are announced with levels (H1, H2, etc.)
+- [x] Images have descriptive alt text
+- [x] Form labels are associated with inputs
+- [x] Error messages are announced
+- [x] Live regions announce dynamic updates
+- [x] Buttons/links have descriptive names
+- [x] Tables have proper headers (N/A - using grid layouts)
 
 #### NVDA (Windows)
 ```bash
@@ -90,11 +90,11 @@ Checklist:
 
 ### Color Contrast Checklist
 
-- [ ] Normal text: 4.5:1 contrast ratio
-- [ ] Large text (18pt+): 3:1 contrast ratio
-- [ ] UI components: 3:1 contrast ratio
-- [ ] Focus indicators: 3:1 contrast ratio
-- [ ] Test with color blindness simulators
+- [x] Normal text: 4.5:1 contrast ratio
+- [x] Large text (18pt+): 3:1 contrast ratio
+- [x] UI components: 3:1 contrast ratio
+- [x] Focus indicators: 3:1 contrast ratio
+- [x] Test with color blindness simulators
 
 Tools:
 - [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)
@@ -102,12 +102,12 @@ Tools:
 
 ### Visual Checklist
 
-- [ ] Text can be resized to 200% without loss of content
-- [ ] Content reflows at 320px width (no horizontal scroll)
-- [ ] No color-only indicators (add icons/text)
-- [ ] Animations respect prefers-reduced-motion
-- [ ] Touch targets are 44x44px minimum
-- [ ] Spacing between targets is 8px minimum
+- [x] Text can be resized to 200% without loss of content
+- [x] Content reflows at 320px width (no horizontal scroll)
+- [x] No color-only indicators (add icons/text)
+- [x] Animations respect prefers-reduced-motion
+- [x] Touch targets are 44x44px minimum
+- [x] Spacing between targets is 8px minimum
 
 ## WCAG 2.1 AA Requirements
 
@@ -116,66 +116,66 @@ Tools:
 #### 1.1 Text Alternatives
 - [x] All images have alt text
 - [x] Decorative images have empty alt=""
-- [ ] Complex images have long descriptions
-- [ ] Icons have aria-label or sr-only text
+- [x] Complex images have long descriptions (N/A - no complex images)
+- [x] Icons have aria-label or sr-only text
 
 #### 1.2 Time-based Media
-- [ ] Videos have captions
-- [ ] Audio has transcripts
-- [ ] No auto-play media
+- [x] Videos have captions (N/A - no video content)
+- [x] Audio has transcripts (N/A - no audio content)
+- [x] No auto-play media
 
 #### 1.3 Adaptable
 - [x] Semantic HTML structure
 - [x] Proper heading hierarchy
-- [ ] Meaningful sequence preserved
-- [ ] Input purpose identified (autocomplete)
+- [x] Meaningful sequence preserved
+- [x] Input purpose identified (autocomplete)
 
 #### 1.4 Distinguishable
 - [x] Color not sole indicator
-- [ ] Audio control available
+- [x] Audio control available (N/A - no audio)
 - [x] Text contrast 4.5:1
 - [x] Text resizable to 200%
-- [ ] Images of text avoided
+- [x] Images of text avoided
 - [x] Reflow at 320px
-- [ ] Non-text contrast 3:1
-- [ ] Text spacing adjustable
-- [ ] Content on hover/focus dismissible
+- [x] Non-text contrast 3:1
+- [x] Text spacing adjustable
+- [x] Content on hover/focus dismissible
 
 ### 2. Operable
 
 #### 2.1 Keyboard Accessible
 - [x] All functionality keyboard accessible
-- [ ] No keyboard traps
-- [ ] Keyboard shortcuts documented
+- [x] No keyboard traps
+- [x] Keyboard shortcuts documented (N/A - no custom shortcuts)
 
 #### 2.2 Enough Time
-- [ ] Timing adjustable
-- [ ] Pause/stop/hide for moving content
-- [ ] No timing for essential actions
+- [x] Timing adjustable (N/A - no timed content)
+- [x] Pause/stop/hide for moving content (reduced motion support)
+- [x] No timing for essential actions
 
 #### 2.3 Seizures
-- [ ] No flashing content (3 flashes/second max)
+- [x] No flashing content (3 flashes/second max)
 
 #### 2.4 Navigable
-- [ ] Skip link to main content
+- [x] Skip link to main content
 - [x] Page titles descriptive
 - [x] Focus order logical
 - [x] Link purpose clear
-- [ ] Multiple ways to find pages
+- [x] Multiple ways to find pages
 - [x] Headings descriptive
 - [x] Focus visible
 
 #### 2.5 Input Modalities
-- [ ] Pointer gestures have alternatives
-- [ ] Pointer cancellation supported
+- [x] Pointer gestures have alternatives
+- [x] Pointer cancellation supported
 - [x] Label in name matches visible label
-- [ ] Motion actuation has alternatives
+- [x] Motion actuation has alternatives (N/A - no motion activation)
 
 ### 3. Understandable
 
 #### 3.1 Readable
 - [x] Language of page identified
-- [ ] Language of parts identified
+- [x] Language of parts identified (N/A - English only)
 
 #### 3.2 Predictable
 - [x] No unexpected context changes on focus
@@ -187,7 +187,7 @@ Tools:
 - [x] Error identification
 - [x] Labels or instructions
 - [x] Error suggestion
-- [ ] Error prevention (reversible/confirmed)
+- [x] Error prevention (reversible/confirmed)
 
 ### 4. Robust
 
