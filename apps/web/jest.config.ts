@@ -11,6 +11,8 @@ export default {
           parser: { syntax: 'typescript', tsx: true },
           transform: { react: { runtime: 'automatic' } },
         },
+        // Ignore .swcrc to avoid conflicts with test file exclusions
+        swcrc: false,
       },
     ],
   },
@@ -25,5 +27,5 @@ export default {
     '^next/link$': '<rootDir>/../../test/mocks/next-link.js',
     '^next/navigation$': '<rootDir>/../../test/mocks/next-navigation.js',
   },
-  testPathIgnorePatterns: ['/node_modules/', '/.next/'],
+  testPathIgnorePatterns: ['/node_modules/', '/.next/', '/e2e/'],
 };
