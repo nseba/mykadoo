@@ -29,7 +29,7 @@ import {
   AssignVariantDto,
 } from './dto';
 
-@Controller('api/similarity-analytics')
+@Controller('similarity-analytics')
 export class SimilarityAnalyticsController {
   constructor(private readonly analyticsService: SimilarityAnalyticsService) {}
 

@@ -28,7 +28,7 @@ import {
 /**
  * Controller for vector search and embedding operations
  */
-@Controller('api/vectors')
+@Controller('vectors')
 export class VectorController {
   private readonly logger = new Logger(VectorController.name);
 
