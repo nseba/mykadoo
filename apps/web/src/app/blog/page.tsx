@@ -65,8 +65,12 @@ async function CategoriesSidebar() {
     if (categories.length === 0) return null;
 
     return (
-      <aside className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-        <h3 className="font-semibold text-gray-900 mb-4">Categories</h3>
+      <aside
+        role="complementary"
+        aria-label="Blog categories"
+        className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
+      >
+        <h2 className="font-semibold text-gray-900 mb-4">Categories</h2>
         <ul className="space-y-2">
           {categories.slice(0, 10).map((category) => (
             <li key={category.id}>
@@ -180,10 +184,14 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               </Suspense>
 
               {/* Newsletter Signup */}
-              <div className="bg-coral-50 rounded-xl p-6">
-                <h3 className="font-semibold text-gray-900 mb-2">
+              <aside
+                role="complementary"
+                aria-label="Newsletter signup"
+                className="bg-coral-50 rounded-xl p-6"
+              >
+                <h2 className="font-semibold text-gray-900 mb-2">
                   Get Gift Ideas
-                </h3>
+                </h2>
                 <p className="text-sm text-gray-600 mb-4">
                   Subscribe to our newsletter for weekly gift inspiration.
                 </p>
@@ -201,7 +209,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                     Subscribe
                   </button>
                 </form>
-              </div>
+              </aside>
             </div>
           </div>
         </div>

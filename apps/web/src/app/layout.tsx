@@ -115,13 +115,12 @@ export default function RootLayout({
         {/* Skip to content link for accessibility */}
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow-lg focus:ring-2 focus:ring-coral-500"
-          style={{ color: '#FF6B6B' }}
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow-lg focus:ring-2 focus:ring-coral-500 focus:text-coral-600"
         >
           Skip to main content
         </a>
         <Header />
-        <main id="main-content" className="min-h-screen">
+        <main id="main-content" role="main" className="min-h-screen">
           {children}
         </main>
         <Footer />

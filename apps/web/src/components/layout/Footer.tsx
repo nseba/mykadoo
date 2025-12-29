@@ -60,9 +60,9 @@ export function Footer() {
           <div className="flex flex-col items-center lg:items-start gap-4">
             <Link
               href="/"
-              className="text-2xl font-bold transition-colors hover:opacity-80"
-              style={{ color: '#FF6B6B' }}
+              className="text-2xl font-bold transition-colors hover:opacity-80 text-coral-600"
             >
+              <span aria-hidden="true">🎁</span>
               Mykadoo
             </Link>
             <p className="text-sm text-gray-500 text-center lg:text-left max-w-xs">

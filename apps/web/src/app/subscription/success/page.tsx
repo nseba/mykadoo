@@ -53,7 +53,7 @@ export default function SubscriptionSuccessPage() {
         </div>
 
         <div className="mt-8 rounded-lg bg-coral-50 p-4">
-          <h3 className="font-semibold text-coral-800">What&apos;s included:</h3>
+          <h2 className="font-semibold text-coral-800">What&apos;s included:</h2>
           <ul className="mt-2 space-y-1 text-sm text-coral-700">
             <li>Unlimited AI-powered gift searches</li>
             <li>Advanced personalized recommendations</li>

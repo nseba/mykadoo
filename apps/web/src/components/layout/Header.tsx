@@ -25,7 +25,10 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <header
+      role="banner"
+      className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60"
+    >
       <nav
         className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 h-16"
         role="navigation"
@@ -34,9 +37,9 @@ export function Header() {
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-2 text-2xl font-bold transition-colors hover:opacity-80"
-          style={{ color: '#FF6B6B' }}
+          className="flex items-center gap-2 text-2xl font-bold transition-colors hover:opacity-80 text-coral-600"
         >
+          <span aria-hidden="true">🎁</span>
           Mykadoo
         </Link>
 
@@ -48,9 +51,10 @@ export function Header() {
               href={link.href}
               className={`text-sm font-medium transition-colors ${
                 isActive(link.href)
-                  ? 'text-[#FF6B6B] border-b-2 border-[#FF6B6B] pb-1'
+                  ? 'text-coral-600 border-b-2 border-coral-600 pb-1'
                   : 'text-gray-600 hover:text-gray-900'
               }`}
+              aria-current={isActive(link.href) ? 'page' : undefined}
             >
               {link.label}
             </Link>
@@ -67,8 +71,7 @@ export function Header() {
           </Link>
           <Link
             href="/signup"
-            className="rounded-full px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:opacity-90"
-            style={{ backgroundColor: '#FF6B6B' }}
+            className="rounded-full bg-coral-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-coral-700"
           >
             Sign up
           </Link>
@@ -111,9 +114,10 @@ export function Header() {
                   href={link.href}
                   className={`block px-4 py-2 text-base font-medium transition-colors ${
                     isActive(link.href)
-                      ? 'text-[#FF6B6B] bg-gray-50'
+                      ? 'text-coral-600 bg-gray-50'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
+                  aria-current={isActive(link.href) ? 'page' : undefined}
                 >
                   {link.label}
                 </Link>
@@ -128,8 +132,7 @@ export function Header() {
                 <div className="px-4 py-2">
                   <Link
                     href="/signup"
-                    className="block rounded-full px-4 py-2 text-center text-base font-semibold text-white shadow-sm transition-colors hover:opacity-90"
-                    style={{ backgroundColor: '#FF6B6B' }}
+                    className="block rounded-full bg-coral-600 px-4 py-2 text-center text-base font-semibold text-white shadow-sm transition-colors hover:bg-coral-700"
                   >
                     Sign up
                   </Link>
