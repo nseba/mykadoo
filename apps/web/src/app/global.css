@@ -60,3 +60,89 @@
     text-wrap: balance;
   }
 }
+
+/* ===========================================
+   Reduced Motion Support (WCAG 2.3.3)
+   Respects user preference for reduced motion
+   =========================================== */
+
+/* Global reduced motion settings */
+@media (prefers-reduced-motion: reduce) {
+  /* Disable all CSS animations */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Disable smooth scrolling */
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  /* Remove transform-based animations on hover/focus */
+  a,
+  button,
+  [role="button"] {
+    transform: none !important;
+  }
+
+  /* Disable animated spinners - show static version */
+  .animate-spin {
+    animation: none !important;
+  }
+
+  /* Disable bounce animations */
+  .animate-bounce {
+    animation: none !important;
+  }
+
+  /* Disable pulse animations */
+  .animate-pulse {
+    animation: none !important;
+  }
+
+  /* Disable ping animations */
+  .animate-ping {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+
+  /* Preserve visibility of elements that rely on animation */
+  .animate-spin::after {
+    content: "Loading...";
+    position: absolute;
+    font-size: 0.75rem;
+    color: currentColor;
+  }
+}
+
+/* Utility class for components that should respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .motion-safe\:animate-none {
+    animation: none !important;
+  }
+
+  .motion-safe\:transition-none {
+    transition: none !important;
+  }
+}
+
+/* Utility class for essential motion that must be shown even when reduced motion is preferred */
+/* Use sparingly - only for motion that conveys critical information */
+.motion-reduce\:hidden {
+  /* Visible by default */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-reduce\:hidden {
+    display: none !important;
+  }
+
+  .motion-reduce\:block {
+    display: block !important;
+  }
+}
