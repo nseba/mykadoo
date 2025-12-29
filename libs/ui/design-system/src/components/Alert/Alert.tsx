@@ -104,10 +104,15 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
 
     if (!isVisible) return null;
 
+    // Use assertive for errors (urgent), polite for others (non-urgent)
+    const ariaLive = variant === 'error' ? 'assertive' : 'polite';
+
     return (
       <div
         ref={ref}
         role="alert"
+        aria-live={ariaLive}
+        aria-atomic="true"
         className={cn(
           // Base styles
           'relative rounded-lg border p-4',

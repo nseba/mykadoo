@@ -3,7 +3,8 @@
 /**
  * Error State Component
  *
- * Display error messages
+ * Display error messages with ARIA live region for immediate screen reader announcement
+ * Uses role="alert" and aria-live="assertive" for urgent notifications
  */
 
 interface ErrorStateProps {
@@ -12,10 +13,20 @@ interface ErrorStateProps {
 }
 
 export function ErrorState({ message, onRetry }: ErrorStateProps) {
+  const errorMessage = message || 'We encountered an error while searching for gifts. Please try again.';
+
   return (
-    <div className="flex flex-col items-center justify-center py-12">
+    <div
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+      className="flex flex-col items-center justify-center py-12"
+    >
       {/* Error Icon */}
-      <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+      <div
+        className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4"
+        aria-hidden="true"
+      >
         <svg
           className="w-8 h-8 text-red-600"
           fill="none"
@@ -36,7 +47,7 @@ export function ErrorState({ message, onRetry }: ErrorStateProps) {
         Oops! Something went wrong
       </h3>
       <p className="text-gray-600 text-center max-w-md mb-6">
-        {message || 'We encountered an error while searching for gifts. Please try again.'}
+        {errorMessage}
       </p>
 
       {/* Retry Button */}

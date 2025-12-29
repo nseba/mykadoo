@@ -253,19 +253,33 @@ export function SearchForm({ onSubmit, loading = false }: SearchFormProps) {
             }}
             placeholder="e.g., Reading, Yoga, Coffee"
             className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-coral-500 focus:border-transparent"
+            aria-describedby="interests-hint"
           />
           <button
             type="button"
             onClick={addInterest}
+            aria-label="Add interest"
             className="px-4 py-2 bg-coral-100 text-coral-700 rounded-md hover:bg-coral-200 transition-colors"
           >
             Add
           </button>
         </div>
-        <div className="flex flex-wrap gap-2">
+        {/* Live region for screen reader announcements */}
+        <div
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          className="sr-only"
+        >
+          {formData.interests.length > 0
+            ? `${formData.interests.length} interest${formData.interests.length !== 1 ? 's' : ''} added: ${formData.interests.join(', ')}`
+            : 'No interests added yet'}
+        </div>
+        <div className="flex flex-wrap gap-2" role="list" aria-label="Added interests">
           {formData.interests.map((interest) => (
             <span
               key={interest}
+              role="listitem"
               className="inline-flex items-center px-3 py-1 bg-coral-600 text-white rounded-full text-sm"
             >
               {interest}
@@ -281,7 +295,7 @@ export function SearchForm({ onSubmit, loading = false }: SearchFormProps) {
           ))}
         </div>
         {formData.interests.length === 0 && (
-          <p className="text-xs text-gray-500 mt-1">
+          <p id="interests-hint" className="text-xs text-gray-500 mt-1">
             Add at least one interest to get personalized recommendations
           </p>
         )}

@@ -4,17 +4,27 @@
  * Loading State Component
  *
  * Display while AI generates recommendations
+ * Uses ARIA live region to announce loading status to screen readers
  */
 
 export function LoadingState() {
   return (
-    <div className="flex flex-col items-center justify-center py-12">
+    <div
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+      aria-label="Loading gift recommendations"
+      className="flex flex-col items-center justify-center py-12"
+    >
       <div className="relative">
         {/* Spinner */}
-        <div className="w-16 h-16 border-4 border-coral-200 border-t-coral-500 rounded-full animate-spin"></div>
+        <div
+          className="w-16 h-16 border-4 border-coral-200 border-t-coral-500 rounded-full animate-spin"
+          aria-hidden="true"
+        ></div>
 
         {/* Icon in center */}
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
           <svg
             className="w-6 h-6 text-coral-500"
             fill="none"
