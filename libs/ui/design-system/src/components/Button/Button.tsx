@@ -17,10 +17,11 @@ const buttonVariants = {
     danger: 'bg-error-700 text-white hover:bg-error-800 active:bg-error-900 focus:ring-error-500',
   },
   size: {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-base',
-    lg: 'px-6 py-3 text-lg',
-    icon: 'p-2',
+    // WCAG 2.5.5: Minimum 44x44px touch target on mobile for AAA compliance
+    sm: 'px-3 py-1.5 text-sm min-h-[44px]',
+    md: 'px-4 py-2 text-base min-h-[44px]',
+    lg: 'px-6 py-3 text-lg min-h-[48px]',
+    icon: 'p-2 min-w-[44px] min-h-[44px]',
   },
 };
 

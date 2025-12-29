@@ -59,6 +59,27 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Mobile Accessibility: Minimum Touch Target Size (WCAG 2.5.5 Level AAA) */
+  /* 44x44px minimum as per WCAG, 48x48px recommended by Material Design */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .touch-target-lg {
+    min-width: 48px;
+    min-height: 48px;
+  }
+
+  /* Touch target spacing - minimum 8px between targets */
+  .touch-spacing {
+    gap: 8px;
+  }
+
+  .touch-spacing-lg {
+    gap: 12px;
+  }
 }
 
 /* ===========================================

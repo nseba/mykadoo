@@ -111,6 +111,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               'text-neutral-900 placeholder-neutral-400',
               'transition-colors duration-200',
               'focus:outline-none focus:ring-2 focus:ring-offset-0',
+              // WCAG 2.5.5: Minimum 44px height for touch targets
+              'min-h-[44px]',
               // Disabled state
               'disabled:bg-neutral-100 disabled:cursor-not-allowed disabled:text-neutral-400',
               // Icon spacing

@@ -79,8 +79,9 @@ export function Header() {
         </div>
 
         {/* Mobile Menu - CSS-only using details/summary */}
+        {/* WCAG 2.5.5: 44x44px minimum touch target */}
         <details className="md:hidden group relative">
-          <summary className="list-none cursor-pointer inline-flex items-center justify-center rounded-md p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500">
+          <summary className="list-none cursor-pointer inline-flex items-center justify-center rounded-md p-2.5 min-w-[44px] min-h-[44px] text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500">
             <span className="sr-only">Open menu</span>
             {/* Hamburger icon - shown when closed */}
             <svg
@@ -109,11 +110,12 @@ export function Header() {
           {/* Mobile Menu Panel */}
           <div className="absolute right-0 top-full mt-2 w-64 origin-top-right rounded-lg border border-gray-200 bg-white shadow-lg ring-1 ring-black ring-opacity-5">
             <div className="py-2">
+              {/* WCAG 2.5.5: 44px minimum touch target height with 8px spacing */}
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`block px-4 py-2 text-base font-medium transition-colors ${
+                  className={`block px-4 py-3 min-h-[44px] text-base font-medium transition-colors ${
                     isActive(link.href)
                       ? 'text-coral-600 bg-gray-50'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
@@ -126,14 +128,14 @@ export function Header() {
               <div className="border-t border-gray-200 mt-2 pt-2">
                 <Link
                   href="/login"
-                  className="block px-4 py-2 text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                  className="block px-4 py-3 min-h-[44px] text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                 >
                   Log in
                 </Link>
                 <div className="px-4 py-2">
                   <Link
                     href="/signup"
-                    className="block rounded-full bg-coral-600 px-4 py-2 text-center text-base font-semibold text-white shadow-sm transition-colors hover:bg-coral-700"
+                    className="block rounded-full bg-coral-600 px-4 py-3 min-h-[44px] text-center text-base font-semibold text-white shadow-sm transition-colors hover:bg-coral-700"
                   >
                     Sign up
                   </Link>
