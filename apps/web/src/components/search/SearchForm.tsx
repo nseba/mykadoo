@@ -266,7 +266,7 @@ export function SearchForm({ onSubmit, loading = false }: SearchFormProps) {
           {formData.interests.map((interest) => (
             <span
               key={interest}
-              className="inline-flex items-center px-3 py-1 bg-coral-500 text-white rounded-full text-sm"
+              className="inline-flex items-center px-3 py-1 bg-coral-600 text-white rounded-full text-sm"
             >
               {interest}
               <button
@@ -306,7 +306,7 @@ export function SearchForm({ onSubmit, loading = false }: SearchFormProps) {
       <button
         type="submit"
         disabled={!isValid || loading}
-        className="w-full px-6 py-3 bg-coral-500 text-white font-medium rounded-md hover:bg-coral-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+        className="w-full px-6 py-3 bg-coral-600 text-white font-medium rounded-md hover:bg-coral-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
       >
         {loading ? 'Finding Gifts...' : 'Find Perfect Gifts'}
       </button>

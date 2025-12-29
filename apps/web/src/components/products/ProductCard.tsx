@@ -161,7 +161,7 @@ export function ProductCard({
         {/* CTA Button */}
         <button
           onClick={handleAffiliateClick}
-          className="w-full bg-coral-500 hover:bg-coral-600 text-white font-medium py-2.5 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2 group-hover:bg-coral-600"
+          className="w-full bg-coral-600 hover:bg-coral-700 text-white font-medium py-2.5 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2 group-hover:bg-coral-700"
         >
           View on {product.retailerName || product.platform}
           <ExternalLink size={16} />

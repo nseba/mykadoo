@@ -10,8 +10,8 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-// Import axe configuration
-const axeConfig = require('../../../axe.config.js');
+// Note: axeConfig is imported dynamically when needed for custom rule configuration
+// For now, we use the default AxeBuilder configuration which includes WCAG 2.1 AA rules
 
 /**
  * Custom expect for axe results
@@ -125,10 +125,12 @@ test.describe('Accessibility Tests', () => {
         const id = await input.getAttribute('id');
         const ariaLabel = await input.getAttribute('aria-label');
         const ariaLabelledBy = await input.getAttribute('aria-labelledby');
-        const placeholder = await input.getAttribute('placeholder');
+        // Placeholder should not be used as sole accessible name
+        const _placeholder = await input.getAttribute('placeholder');
 
         if (id) {
           const label = await page.locator(`label[for="${id}"]`).count();
+          // Note: placeholder is intentionally not included as a valid label source per WCAG
           const hasLabel = label > 0 || ariaLabel || ariaLabelledBy;
           expect(hasLabel).toBeTruthy();
         }

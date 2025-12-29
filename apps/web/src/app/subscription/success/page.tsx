@@ -39,7 +39,7 @@ export default function SubscriptionSuccessPage() {
         <div className="mt-8 space-y-4">
           <Link
             href="/search"
-            className="block w-full rounded-lg bg-coral-500 px-6 py-3 text-center font-semibold text-white transition-colors hover:bg-coral-600"
+            className="block w-full rounded-lg bg-coral-600 px-6 py-3 text-center font-semibold text-white transition-colors hover:bg-coral-700"
           >
             Start Searching
           </Link>

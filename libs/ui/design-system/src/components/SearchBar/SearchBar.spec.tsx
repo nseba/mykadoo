@@ -194,7 +194,8 @@ describe('SearchBar', () => {
 
       await user.click(input);
       expect(input).toHaveFocus();
-      expect(input).toHaveClass('focus:ring-primary-500');
+      // WCAG AA: Using coral-500 focus ring for consistent brand colors
+      expect(input).toHaveClass('focus:ring-coral-500');
     });
   });
 
@@ -315,9 +316,10 @@ describe('SearchBar', () => {
       render(<SearchBar showButton />);
       const button = screen.getByRole('button', { name: /search/i });
 
-      expect(button).toHaveClass('bg-primary-500');
-      expect(button).toHaveClass('hover:bg-primary-600');
-      expect(button).toHaveClass('active:bg-primary-700');
+      // WCAG AA: Using coral-600 for 4.5:1 contrast with white text
+      expect(button).toHaveClass('bg-coral-600');
+      expect(button).toHaveClass('hover:bg-coral-700');
+      expect(button).toHaveClass('active:bg-coral-800');
     });
 
     it('positions button correctly inside input', () => {

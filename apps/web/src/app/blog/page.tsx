@@ -196,7 +196,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                   />
                   <button
                     type="submit"
-                    className="w-full bg-coral-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-coral-600 transition-colors text-sm"
+                    className="w-full bg-coral-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-coral-700 transition-colors text-sm"
                   >
                     Subscribe
                   </button>

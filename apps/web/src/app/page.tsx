@@ -9,7 +9,7 @@ export default function HomePage() {
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
               Find the{' '}
-              <span className="text-coral-500" style={{ color: '#FF6B6B' }}>
+              <span className="text-coral-600">
                 Perfect Gift
               </span>
               <br />
@@ -22,8 +22,7 @@ export default function HomePage() {
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Link
                 href="/search"
-                className="rounded-full bg-coral-500 px-8 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-coral-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral-600 transition-colors"
-                style={{ backgroundColor: '#FF6B6B' }}
+                className="rounded-full bg-coral-600 px-8 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-coral-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral-600 transition-colors"
               >
                 Start Searching
               </Link>

@@ -100,7 +100,7 @@ export function GiftCard({ gift, searchId, onSave }: GiftCardProps) {
               href={gift.purchaseUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 px-4 py-2 bg-coral-500 text-white text-sm font-medium rounded-md hover:bg-coral-600 text-center transition-colors"
+              className="flex-1 px-4 py-2 bg-coral-600 text-white text-sm font-medium rounded-md hover:bg-coral-700 focus:ring-2 focus:ring-coral-500 focus:ring-offset-2 text-center transition-colors"
             >
               View Product
             </a>

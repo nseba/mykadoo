@@ -30,13 +30,15 @@ describe('Button', () => {
     it('renders primary variant', () => {
       render(<Button variant="primary">Primary</Button>);
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('bg-primary-500');
+      // WCAG AA: Using coral-600 for 4.5:1 contrast with white text
+      expect(button).toHaveClass('bg-coral-600');
     });
 
     it('renders secondary variant', () => {
       render(<Button variant="secondary">Secondary</Button>);
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('bg-secondary-500');
+      // WCAG AA: Using secondary-700 for 4.5:1 contrast with white text
+      expect(button).toHaveClass('bg-secondary-700');
     });
 
     it('renders outline variant', () => {
@@ -48,7 +50,8 @@ describe('Button', () => {
     it('renders danger variant', () => {
       render(<Button variant="danger">Delete</Button>);
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('bg-error-500');
+      // WCAG AA: Using error-700 for 4.5:1 contrast with white text
+      expect(button).toHaveClass('bg-error-700');
     });
   });
 

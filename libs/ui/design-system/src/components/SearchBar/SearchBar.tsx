@@ -155,13 +155,15 @@ export const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>(
           <input
             ref={ref}
             type="search"
+            role="searchbox"
+            aria-label={props['aria-label'] || 'Search'}
             className={cn(
               // Base styles
               'w-full rounded-lg border bg-white',
               'text-neutral-900 placeholder-neutral-400',
               'transition-colors duration-200',
               'focus:outline-none focus:ring-2 focus:ring-offset-0',
-              'border-neutral-300 focus:ring-primary-500 focus:border-primary-500',
+              'border-neutral-300 focus:ring-coral-500 focus:border-coral-500',
               // Disabled state
               'disabled:bg-neutral-100 disabled:cursor-not-allowed disabled:text-neutral-400',
               // Size
@@ -182,11 +184,13 @@ export const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>(
               type="button"
               onClick={handleSearch}
               disabled={props.disabled}
+              aria-label={`${buttonText} button`}
               className={cn(
                 'absolute right-1 px-4 py-1.5 rounded-md',
-                'bg-primary-500 text-white font-medium text-sm',
-                'hover:bg-primary-600 active:bg-primary-700',
-                'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1',
+                // WCAG AA: Using coral-600 for 4.5:1 contrast with white text
+                'bg-coral-600 text-white font-medium text-sm',
+                'hover:bg-coral-700 active:bg-coral-800',
+                'focus:outline-none focus:ring-2 focus:ring-coral-500 focus:ring-offset-1',
                 'transition-colors duration-200',
                 'disabled:opacity-50 disabled:cursor-not-allowed'
               )}

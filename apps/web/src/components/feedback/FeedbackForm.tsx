@@ -222,7 +222,7 @@ export const FeedbackForm: React.FC<FeedbackFormProps> = ({
         <button
           type="submit"
           disabled={isSubmitting || !formData.action}
-          className="flex-1 bg-coral-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-coral-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flex-1 bg-coral-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-coral-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
         </button>

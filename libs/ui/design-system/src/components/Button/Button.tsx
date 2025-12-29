@@ -8,12 +8,13 @@ import { cn } from '../../utils';
  */
 const buttonVariants = {
   variant: {
-    primary: 'bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 focus:ring-primary-500',
-    secondary: 'bg-secondary-500 text-white hover:bg-secondary-600 active:bg-secondary-700 focus:ring-secondary-500',
+    // WCAG AA: Using darker shades for 4.5:1 contrast with white text
+    primary: 'bg-coral-600 text-white hover:bg-coral-700 active:bg-coral-800 focus:ring-coral-500',
+    secondary: 'bg-secondary-700 text-white hover:bg-secondary-800 active:bg-secondary-900 focus:ring-secondary-500',
     tertiary: 'bg-neutral-100 text-neutral-900 hover:bg-neutral-200 active:bg-neutral-300 focus:ring-neutral-300',
     outline: 'bg-transparent border-2 border-neutral-300 text-neutral-700 hover:bg-neutral-50 active:bg-neutral-100 focus:ring-neutral-300',
     ghost: 'bg-transparent text-neutral-700 hover:bg-neutral-100 active:bg-neutral-200 focus:ring-neutral-300',
-    danger: 'bg-error-500 text-white hover:bg-error-700 active:bg-error-900 focus:ring-error-500',
+    danger: 'bg-error-700 text-white hover:bg-error-800 active:bg-error-900 focus:ring-error-500',
   },
   size: {
     sm: 'px-3 py-1.5 text-sm',
