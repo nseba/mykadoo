@@ -259,4 +259,43 @@ export class VectorStorageService {
       return null;
     }
   }
+
+  /**
+   * Get products by IDs
+   */
+  async getProductsByIds(productIds: string[]): Promise<ProductWithEmbedding[]> {
+    if (productIds.length === 0) {
+      return [];
+    }
+
+    try {
+      const products = await this.prisma.$queryRaw<
+        Array<{
+          id: string;
+          title: string;
+          description: string | null;
+          category: string | null;
+          tags: string[] | null;
+          has_embedding: boolean;
+        }>
+      >`
+        SELECT id, title, description, category, tags, embedding IS NOT NULL as has_embedding
+        FROM products
+        WHERE id = ANY(${productIds}::text[])
+      `;
+
+      return products.map(p => ({
+        id: p.id,
+        title: p.title,
+        description: p.description,
+        category: p.category,
+        tags: p.tags || [],
+        embedding: null,
+        hasEmbedding: p.has_embedding,
+      }));
+    } catch (error) {
+      this.logger.error(`Failed to get products by IDs: ${error.message}`);
+      return [];
+    }
+  }
 }

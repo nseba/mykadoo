@@ -17,6 +17,7 @@ export interface VectorSearchResult {
   description: string | null;
   price: number;
   category: string | null;
+  imageUrl?: string | null;
   similarity: number;
 }
 
@@ -38,6 +39,7 @@ export interface HybridSearchResult {
   description: string | null;
   price: number;
   category: string | null;
+  imageUrl?: string | null;
   keywordScore: number;
   semanticScore: number;
   combinedScore: number;

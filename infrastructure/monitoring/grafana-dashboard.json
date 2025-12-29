@@ -200,6 +200,261 @@
           }
         ],
         "format": "s"
+      },
+      {
+        "id": 13,
+        "title": "Vector Search Latency (p50, p95, p99)",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, sum(rate(vector_search_duration_seconds_bucket[5m])) by (le, operation))",
+            "legendFormat": "p50 {{ operation }}"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(vector_search_duration_seconds_bucket[5m])) by (le, operation))",
+            "legendFormat": "p95 {{ operation }}"
+          },
+          {
+            "expr": "histogram_quantile(0.99, sum(rate(vector_search_duration_seconds_bucket[5m])) by (le, operation))",
+            "legendFormat": "p99 {{ operation }}"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "s",
+            "label": "Duration"
+          }
+        ]
+      },
+      {
+        "id": 14,
+        "title": "Embedding Generation Latency",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, sum(rate(vector_embedding_duration_seconds_bucket[5m])) by (le))",
+            "legendFormat": "p50"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(vector_embedding_duration_seconds_bucket[5m])) by (le))",
+            "legendFormat": "p95"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "s",
+            "label": "Duration"
+          }
+        ]
+      },
+      {
+        "id": 15,
+        "title": "Vector Operations Rate",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 28 },
+        "targets": [
+          {
+            "expr": "sum(rate(vector_operations_total[5m])) by (operation)",
+            "legendFormat": "{{ operation }}"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "ops",
+            "label": "Operations/sec"
+          }
+        ]
+      },
+      {
+        "id": 16,
+        "title": "Vector Error Rate",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 28 },
+        "targets": [
+          {
+            "expr": "sum(rate(vector_errors_total[5m])) by (operation, error_type)",
+            "legendFormat": "{{ operation }} - {{ error_type }}"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "short",
+            "label": "Errors/sec"
+          }
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [0.1],
+                "type": "gt"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": 17,
+        "title": "Vector Cache Hit Rate",
+        "type": "gauge",
+        "gridPos": { "h": 6, "w": 6, "x": 0, "y": 36 },
+        "targets": [
+          {
+            "expr": "vector_cache_hit_rate * 100",
+            "legendFormat": "Hit Rate %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "max": 100,
+            "min": 0,
+            "thresholds": {
+              "steps": [
+                { "color": "red", "value": 0 },
+                { "color": "yellow", "value": 50 },
+                { "color": "green", "value": 80 }
+              ]
+            },
+            "unit": "percent"
+          }
+        }
+      },
+      {
+        "id": 18,
+        "title": "Embedding Coverage",
+        "type": "gauge",
+        "gridPos": { "h": 6, "w": 6, "x": 6, "y": 36 },
+        "targets": [
+          {
+            "expr": "vector_embedding_coverage_ratio * 100",
+            "legendFormat": "Coverage %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "max": 100,
+            "min": 0,
+            "thresholds": {
+              "steps": [
+                { "color": "red", "value": 0 },
+                { "color": "yellow", "value": 70 },
+                { "color": "green", "value": 90 }
+              ]
+            },
+            "unit": "percent"
+          }
+        }
+      },
+      {
+        "id": 19,
+        "title": "Vector Pool Utilization",
+        "type": "gauge",
+        "gridPos": { "h": 6, "w": 6, "x": 12, "y": 36 },
+        "targets": [
+          {
+            "expr": "vector_pool_utilization_ratio * 100",
+            "legendFormat": "Utilization %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "max": 100,
+            "min": 0,
+            "thresholds": {
+              "steps": [
+                { "color": "green", "value": 0 },
+                { "color": "yellow", "value": 70 },
+                { "color": "red", "value": 90 }
+              ]
+            },
+            "unit": "percent"
+          }
+        }
+      },
+      {
+        "id": 20,
+        "title": "Vector Index Size",
+        "type": "stat",
+        "gridPos": { "h": 6, "w": 6, "x": 18, "y": 36 },
+        "targets": [
+          {
+            "expr": "vector_index_size_bytes",
+            "legendFormat": "Index Size"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "bytes"
+          }
+        }
+      },
+      {
+        "id": 21,
+        "title": "Embedding Tokens Used",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 42 },
+        "targets": [
+          {
+            "expr": "sum(rate(vector_embedding_tokens_total[5m])) by (model) * 60",
+            "legendFormat": "{{ model }} tokens/min"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "short",
+            "label": "Tokens/min"
+          }
+        ]
+      },
+      {
+        "id": 22,
+        "title": "Embedding Cost per Hour",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 42 },
+        "targets": [
+          {
+            "expr": "sum(rate(vector_embedding_cost_usd[1h])) * 3600",
+            "legendFormat": "Cost/hour"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "currencyUSD",
+            "label": "Cost"
+          }
+        ]
+      },
+      {
+        "id": 23,
+        "title": "Cache Operations",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 50 },
+        "targets": [
+          {
+            "expr": "sum(rate(vector_cache_operations_total[5m])) by (operation, level)",
+            "legendFormat": "{{ level }} {{ operation }}"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "ops",
+            "label": "Operations/sec"
+          }
+        ]
+      },
+      {
+        "id": 24,
+        "title": "Vector Search by Operation Type",
+        "type": "piechart",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 50 },
+        "targets": [
+          {
+            "expr": "sum(increase(vector_operations_total[1h])) by (operation)",
+            "legendFormat": "{{ operation }}"
+          }
+        ]
       }
     ],
     "templating": {

@@ -156,3 +156,158 @@ groups:
         annotations:
           summary: "Deployment {{ $labels.deployment }} has mismatched replicas"
           description: "Expected {{ $labels.spec_replicas }} replicas, but {{ $labels.available_replicas }} are available"
+
+  - name: vector_operations_alerts
+    interval: 30s
+    rules:
+      # Slow vector search
+      - alert: SlowVectorSearch
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(vector_search_duration_seconds_bucket[5m])) by (le, operation)
+          ) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          component: vector
+        annotations:
+          summary: "Slow vector search detected"
+          description: "Vector {{ $labels.operation }} p95 latency is {{ $value }}s (threshold: 0.5s)"
+
+      # Very slow vector search (critical)
+      - alert: CriticalSlowVectorSearch
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(vector_search_duration_seconds_bucket[5m])) by (le, operation)
+          ) > 2
+        for: 2m
+        labels:
+          severity: critical
+          component: vector
+        annotations:
+          summary: "Critical slow vector search detected"
+          description: "Vector {{ $labels.operation }} p95 latency is {{ $value }}s (threshold: 2s)"
+
+      # High vector error rate
+      - alert: HighVectorErrorRate
+        expr: |
+          (
+            sum(rate(vector_errors_total[5m]))
+            /
+            sum(rate(vector_operations_total[5m]))
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          component: vector
+        annotations:
+          summary: "High vector operation error rate"
+          description: "Vector error rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+
+      # Low embedding coverage
+      - alert: LowEmbeddingCoverage
+        expr: vector_embedding_coverage_ratio < 0.8
+        for: 30m
+        labels:
+          severity: warning
+          component: vector
+        annotations:
+          summary: "Low embedding coverage"
+          description: "Only {{ $value | humanizePercentage }} of products have embeddings (threshold: 80%)"
+
+      # Critical low embedding coverage
+      - alert: CriticalLowEmbeddingCoverage
+        expr: vector_embedding_coverage_ratio < 0.5
+        for: 10m
+        labels:
+          severity: critical
+          component: vector
+        annotations:
+          summary: "Critical low embedding coverage"
+          description: "Only {{ $value | humanizePercentage }} of products have embeddings (threshold: 50%)"
+
+      # Low cache hit rate
+      - alert: LowCacheHitRate
+        expr: vector_cache_hit_rate < 0.5
+        for: 15m
+        labels:
+          severity: warning
+          component: vector
+        annotations:
+          summary: "Low vector cache hit rate"
+          description: "Cache hit rate is {{ $value | humanizePercentage }} (threshold: 50%)"
+
+      # High pool utilization
+      - alert: HighVectorPoolUtilization
+        expr: vector_pool_utilization_ratio > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: vector
+        annotations:
+          summary: "High vector pool utilization"
+          description: "Pool utilization is {{ $value | humanizePercentage }} (threshold: 80%)"
+
+      # Critical pool utilization
+      - alert: CriticalVectorPoolUtilization
+        expr: vector_pool_utilization_ratio > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          component: vector
+        annotations:
+          summary: "Critical vector pool utilization"
+          description: "Pool utilization is {{ $value | humanizePercentage }} (threshold: 95%)"
+
+      # Slow embedding generation
+      - alert: SlowEmbeddingGeneration
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(vector_embedding_duration_seconds_bucket[5m])) by (le)
+          ) > 2
+        for: 5m
+        labels:
+          severity: warning
+          component: vector
+        annotations:
+          summary: "Slow embedding generation"
+          description: "Embedding generation p95 latency is {{ $value }}s (threshold: 2s)"
+
+      # High embedding cost
+      - alert: HighEmbeddingCost
+        expr: |
+          sum(rate(vector_embedding_cost_usd[1h])) * 24 * 30 > 500
+        for: 1h
+        labels:
+          severity: warning
+          component: vector
+        annotations:
+          summary: "High embedding cost detected"
+          description: "Projected monthly embedding cost is ${{ $value }} (threshold: $500)"
+
+      # Vector index size growing rapidly
+      - alert: RapidVectorIndexGrowth
+        expr: |
+          (
+            vector_index_size_bytes -
+            vector_index_size_bytes offset 1h
+          ) / vector_index_size_bytes offset 1h > 0.1
+        for: 30m
+        labels:
+          severity: warning
+          component: vector
+        annotations:
+          summary: "Rapid vector index growth"
+          description: "Vector index has grown by {{ $value | humanizePercentage }} in the last hour"
+
+      # No vector operations
+      - alert: NoVectorOperations
+        expr: |
+          sum(rate(vector_operations_total[10m])) == 0
+        for: 15m
+        labels:
+          severity: warning
+          component: vector
+        annotations:
+          summary: "No vector operations detected"
+          description: "No vector operations have been performed in the last 15 minutes"

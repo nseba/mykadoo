@@ -2,14 +2,19 @@
  * Search Service
  *
  * Business logic for gift search and recommendations with caching
+ * Now integrates pgvector-based semantic search with gradual rollout
  */
 
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException, Optional, Inject } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { AIRecommendationService, VectorService } from '@mykadoo/ai';
 import type { GiftSearchRequest, GiftSearchResponse } from '@mykadoo/ai';
 import { CacheService, CacheKey, CacheTTL, getCacheConfig } from '@mykadoo/cache';
 import { SearchRequestDto } from './dto/search-request.dto';
 import { SearchResponseDto, GiftRecommendationDto } from './dto/search-response.dto';
+
+// Feature flag for semantic search rollout
+const SEMANTIC_SEARCH_ROLLOUT_PERCENT = 100; // 100% rollout (fully enabled)
 
 @Injectable()
 export class SearchService {
@@ -17,11 +22,44 @@ export class SearchService {
   private aiService: AIRecommendationService;
   private vectorService: VectorService;
   private cacheService: CacheService;
+  private readonly semanticSearchEnabled: boolean;
 
-  constructor() {
+  constructor(@Optional() private readonly configService?: ConfigService) {
     this.aiService = new AIRecommendationService();
     this.vectorService = new VectorService();
     this.cacheService = new CacheService(getCacheConfig());
+
+    // Check if semantic search should be enabled via config
+    this.semanticSearchEnabled = this.configService?.get<boolean>(
+      'ENABLE_SEMANTIC_SEARCH',
+      true
+    ) ?? true;
+  }
+
+  /**
+   * Check if this request should use semantic search (gradual rollout)
+   */
+  private shouldUseSemanticSearch(sessionId?: string): boolean {
+    if (!this.semanticSearchEnabled) return false;
+
+    // Use session-based bucketing for consistent experience
+    if (sessionId) {
+      const hash = this.simpleHash(sessionId);
+      return (hash % 100) < SEMANTIC_SEARCH_ROLLOUT_PERCENT;
+    }
+
+    // Random for anonymous users
+    return Math.random() * 100 < SEMANTIC_SEARCH_ROLLOUT_PERCENT;
+  }
+
+  private simpleHash(str: string): number {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash;
+    }
+    return Math.abs(hash);
   }
 
   /**
