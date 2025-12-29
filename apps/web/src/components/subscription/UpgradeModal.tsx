@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { SubscriptionPlan, createCheckoutSession } from '../../lib/subscription';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -21,42 +22,12 @@ export function UpgradeModal({
 }: UpgradeModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const modalRef = useRef<HTMLDivElement>(null);
-  const previousActiveElement = useRef<HTMLElement | null>(null);
 
-  // Handle escape key
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      onClose();
-    }
-  }, [onClose]);
-
-  // Focus management and escape key handler
-  useEffect(() => {
-    if (isOpen) {
-      // Store the previously focused element
-      previousActiveElement.current = document.activeElement as HTMLElement;
-
-      // Add escape key listener
-      document.addEventListener('keydown', handleKeyDown);
-
-      // Focus the modal
-      modalRef.current?.focus();
-
-      // Prevent body scroll
-      document.body.style.overflow = 'hidden';
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = '';
-
-      // Return focus to previously focused element
-      if (previousActiveElement.current && !isOpen) {
-        previousActiveElement.current.focus();
-      }
-    };
-  }, [isOpen, handleKeyDown]);
+  // Use the focus trap hook for accessible modal behavior
+  const modalRef = useFocusTrap<HTMLDivElement>({
+    isActive: isOpen,
+    onEscape: onClose,
+  });
 
   if (!isOpen) return null;
 
